@@ -1,0 +1,3549 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard Médica</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        /* Estilos globais */
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f0f2f5;
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+            color: #333;
+        }
+        
+        /* Estilos da Tela de Login */
+        .login-container {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            background-color: rgba(0, 0, 0, 0.5);
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            z-index: 10000;
+        }
+        
+        .login-box {
+            background-color: white;
+            border-radius: 10px;
+            padding: 30px;
+            width: 100%;
+            max-width: 400px;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.2);
+        }
+        
+        .login-title {
+            text-align: center;
+            margin-bottom: 20px;
+            color: #2c3e50;
+            font-size: 1.5rem;
+        }
+        
+        .login-input {
+            width: 100%;
+            padding: 12px;
+            margin-bottom: 15px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            font-size: 16px;
+        }
+        
+        .login-btn {
+            width: 100%;
+            padding: 12px;
+            background-color: #3498db;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            font-size: 16px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+        
+        .login-btn:hover {
+            background-color: #2980b9;
+        }
+        
+        /* Estilo para modo visualização */
+        .view-mode-warning {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            background-color: #e74c3c;
+            color: white;
+            text-align: center;
+            padding: 10px;
+            z-index: 1000;
+            font-size: 0.9rem;
+        }
+        
+        .disabled-field {
+            background-color: #f5f5f5 !important;
+            cursor: not-allowed !important;
+        }
+        
+        .hidden-in-view {
+            display: none !important;
+        }
+        
+        /* Estilos da Tela 0 - Menu Principal */
+        .main-menu-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+            padding: 30px 20px;
+            background-color: #f0f2f5;
+        }
+        
+        .header-main-menu {
+            text-align: center;
+            margin-bottom: 30px;
+            width: 100%;
+        }
+        
+        .header-main-menu h1 {
+            color: #2c3e50;
+            margin-bottom: 10px;
+            font-size: 2.2rem;
+        }
+        
+        .header-main-menu p {
+            color: #7f8c8d;
+            font-size: 1rem;
+        }
+        
+        .menu-cards-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 25px;
+            width: 100%;
+            max-width: 1000px;
+            margin-top: 20px;
+        }
+        
+        .menu-card {
+            background-color: white;
+            border-radius: 12px;
+            padding: 30px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-align: center;
+            border: 1px solid #e0e0e0;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .menu-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 20px rgba(0,0,0,0.1);
+            border-color: #3498db;
+        }
+        
+        .menu-card i {
+            font-size: 2.5rem;
+            color: #3498db;
+            margin-bottom: 15px;
+        }
+        
+        .menu-card h3 {
+            font-size: 1.3rem;
+            font-weight: 600;
+            color: #2c3e50;
+            margin-bottom: 10px;
+        }
+        
+        .menu-card p {
+            color: #7f8c8d;
+            font-size: 0.9rem;
+        }
+        
+        /* Estilos da Tela 1 - Menu de Especialidades */
+        .menu-container {
+            display: none;
+            flex-direction: column;
+            align-items: center;
+            justify-content: flex-start;
+            height: 100vh;
+            padding: 30px 20px;
+            background-color: #f0f2f5;
+        }
+        
+        .header-menu {
+            text-align: center;
+            margin-bottom: 30px;
+            width: 100%;
+        }
+        
+        .header-menu h1 {
+            color: #2c3e50;
+            margin-bottom: 10px;
+            font-size: 2.2rem;
+        }
+        
+        .header-menu p {
+            color: #7f8c8d;
+            font-size: 1rem;
+        }
+        
+        .especialidades-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 20px;
+            width: 100%;
+            max-width: 1200px;
+            margin-top: 20px;
+        }
+        
+        .especialidade-card {
+            background-color: white;
+            border-radius: 12px;
+            padding: 25px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-align: center;
+            border: 1px solid #e0e0e0;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .especialidade-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 20px rgba(0,0,0,0.1);
+            border-color: #3498db;
+        }
+        
+        .especialidade-card.editing {
+            background-color: #f8f9fa;
+        }
+        
+        .especialidade-nome {
+            font-size: 1.2rem;
+            font-weight: 600;
+            margin-bottom: 15px;
+            color: #2c3e50;
+            padding: 5px;
+        }
+        
+        .especialidade-nome[contenteditable="true"] {
+            background-color: #f8f9fa;
+            border-radius: 4px;
+            outline: none;
+            border: 1px dashed #95a5a6;
+        }
+        
+        .especialidade-actions {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            margin-top: 15px;
+        }
+        
+        .action-btn {
+            background: none;
+            border: none;
+            cursor: pointer;
+            color: #7f8c8d;
+            font-size: 1rem;
+            transition: color 0.2s;
+            padding: 5px;
+        }
+        
+        .action-btn:hover {
+            color: #3498db;
+        }
+        
+        .add-especialidade-btn {
+            background-color: #3498db;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            padding: 15px 20px;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: background-color 0.3s;
+            margin-top: 30px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+        
+        .add-especialidade-btn:hover {
+            background-color: #2980b9;
+        }
+        
+        /* Estilos da Tela 2 - Dashboard */
+        .dashboard-container {
+            display: none;
+            flex: 1;
+            flex-direction: column;
+            height: 100%;
+            background-color: #f0f2f5;
+        }
+        
+        .download-anexo {
+            background-color: #3498db;
+            color: white;
+            border: none;
+            border-radius: 3px;
+            padding: 3px 8px;
+            font-size: 0.7rem;
+            cursor: pointer;
+            transition: background-color 0.2s;
+        }
+        
+        .download-anexo:hover {
+            background-color: #2980b9;
+        }
+        
+        /* Ajustes para os filtros em modo visualização */
+        .dashboard-filters {
+            display: flex;
+            justify-content: flex-end;
+            gap: 10px;
+            margin-bottom: 15px;
+            padding: 0 10px;
+        }
+        
+        .filter-btn {
+            background-color: #ecf0f1;
+            color: #2c3e50;
+            border: none;
+            padding: 8px 15px;
+            border-radius: 4px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            transition: all 0.2s;
+            font-size: 0.9rem;
+        }
+        
+        .filter-btn:hover {
+            background-color: #d5dbdb;
+        }
+        
+        .filter-btn.active {
+            background-color: #3498db;
+            color: white;
+        }
+        
+        .dashboard-header {
+            padding: 15px 25px;
+            background-color: white;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid #e0e0e0;
+        }
+        
+        .back-btn {
+            background-color: #3498db;
+            color: white;
+            border: none;
+            padding: 8px 15px;
+            border-radius: 4px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            transition: background-color 0.3s;
+        }
+        
+        .back-btn:hover {
+            background-color: #2980b9;
+        }
+        
+        .dashboard-title {
+            font-size: 1.3rem;
+            font-weight: 600;
+            color: #2c3e50;
+        }
+        
+        .dashboard-actions {
+            display: flex;
+            gap: 10px;
+        }
+        
+        .dashboard-btn {
+            background-color: #3498db;
+            color: white;
+            border: none;
+            padding: 8px 15px;
+            border-radius: 4px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            transition: background-color 0.3s;
+        }
+        
+        .dashboard-btn:hover {
+            background-color: #2980b9;
+        }
+        
+        .dashboard-content {
+            flex: 1;
+            padding: 20px;
+            overflow: auto;
+        }
+        
+        .dashboard-filters {
+            display: flex;
+            justify-content: flex-end;
+            gap: 10px;
+            margin-bottom: 15px;
+            padding: 0 10px;
+        }
+        
+        .filter-btn {
+            background-color: #ecf0f1;
+            color: #2c3e50;
+            border: none;
+            padding: 8px 15px;
+            border-radius: 4px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            transition: all 0.2s;
+            font-size: 0.9rem;
+        }
+        
+        .filter-btn:hover {
+            background-color: #d5dbdb;
+        }
+        
+        .filter-btn.active {
+            background-color: #3498db;
+            color: white;
+        }
+        
+        select.filter-btn {
+            -webkit-appearance: none;
+            -moz-appearance: none;
+            appearance: none;
+            padding-right: 25px;
+            background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%232c3e50'%3e%3cpath d='M7 10l5 5 5-5z'/%3e%3c/svg%3e");
+            background-repeat: no-repeat;
+            background-position: right 8px center;
+            background-size: 12px;
+        }
+        
+        select.filter-btn.active {
+            background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='white'%3e%3cpath d='M7 10l5 5 5-5z'/%3e%3c/svg%3e");
+        }
+        
+        .dashboard {
+            width: 100%;
+            min-height: 100%;
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+            grid-auto-rows: minmax(350px, auto);
+            gap: 20px;
+            padding: 5px;
+        }
+        
+        /* Estilos da Tela 5 - Relatório Colaboradores */
+        .colaboradores-container {
+            display: none;
+            flex-direction: column;
+            align-items: center;
+            justify-content: flex-start;
+            height: 100vh;
+            padding: 30px 20px;
+            background-color: #f0f2f5;
+        }
+        
+        .header-colaboradores {
+            text-align: center;
+            margin-bottom: 30px;
+            width: 100%;
+        }
+        
+        .header-colaboradores h1 {
+            color: #2c3e50;
+            margin-bottom: 10px;
+            font-size: 2.2rem;
+        }
+        
+        .header-colaboradores p {
+            color: #7f8c8d;
+            font-size: 1rem;
+        }
+        
+        .colaboradores-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 20px;
+            width: 100%;
+            max-width: 1200px;
+            margin-top: 20px;
+        }
+        
+        .colaborador-card {
+            background-color: white;
+            border-radius: 12px;
+            padding: 25px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-align: center;
+            border: 1px solid #e0e0e0;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .colaborador-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 20px rgba(0,0,0,0.1);
+            border-color: #3498db;
+        }
+        
+        .colaborador-card.editing {
+            background-color: #f8f9fa;
+        }
+        
+        .colaborador-nome {
+            font-size: 1.2rem;
+            font-weight: 600;
+            margin-bottom: 15px;
+            color: #2c3e50;
+            padding: 5px;
+        }
+        
+        .colaborador-nome[contenteditable="true"] {
+            background-color: #f8f9fa;
+            border-radius: 4px;
+            outline: none;
+            border: 1px dashed #95a5a6;
+        }
+        
+        .colaborador-actions {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            margin-top: 15px;
+        }
+        
+        .add-colaborador-btn {
+            background-color: #3498db;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            padding: 15px 20px;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: background-color 0.3s;
+            margin-top: 30px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+        
+        .add-colaborador-btn:hover {
+            background-color: #2980b9;
+        }
+        
+        /* Estilos dos Quadros */
+        .quadro {
+            background-color: white;
+            border-radius: 10px;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.05);
+            display: flex;
+            flex-direction: column;
+            border: 1px solid #e0e0e0;
+            overflow: hidden;
+            transition: all 0.3s ease;
+            position: relative;
+        }
+        
+        .quadro:hover {
+            box-shadow: 0 8px 20px rgba(0,0,0,0.1);
+            transform: translateY(-2px);
+        }
+        
+        .quadro-header {
+            padding: 12px 15px;
+            background-color: #f8f9fa;
+            border-bottom: 1px solid #e0e0e0;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .quadro-title {
+            font-weight: 600;
+            color: #2c3e50;
+        }
+        
+        .remove-quadro-btn {
+            background: none;
+            border: none;
+            color: #e74c3c;
+            cursor: pointer;
+            font-size: 1.2rem;
+            padding: 0 5px;
+        }
+        
+        .quadro-content {
+            flex: 1;
+            padding: 15px;
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+        
+        .medico-info {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 10px;
+        }
+        
+        .foto-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .grafico-container {
+            width: 120px;
+            height: 120px;
+            position: relative;
+        }
+        
+        .foto-medico {
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            background-color: #ecf0f1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+            border: 2px solid #bdc3c7;
+        }
+        
+        .foto-placeholder {
+            color: #7f8c8d;
+            font-size: 0.8rem;
+        }
+        
+        .info-container {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+        
+        .nome-medico {
+            font-size: 1.1rem;
+            font-weight: 600;
+            color: #2c3e50;
+            border-bottom: 1px solid #eee;
+            padding-bottom: 5px;
+        }
+        
+        .crm {
+            font-size: 0.9rem;
+            color: #7f8c8d;
+        }
+        
+        .medico-actions {
+            display: flex;
+            gap: 8px;
+            margin-top: auto;
+        }
+        
+        .medico-btn {
+            background-color: #ecf0f1;
+            border: none;
+            border-radius: 4px;
+            padding: 5px 10px;
+            font-size: 0.8rem;
+            cursor: pointer;
+            transition: background-color 0.2s;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+        
+        .medico-btn:hover {
+            background-color: #d5dbdb;
+        }
+        
+        .itens-container {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 10px;
+        }
+        
+        .item-container {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .quadro .item-valor {
+            padding: 5px;
+            background-color: #f8f9fa;
+            border-radius: 4px;
+            text-align: center;
+            min-width: 50px;
+        }
+        
+        .quadro .item-container {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 5px 0;
+            border-bottom: 1px solid #eee;
+        }
+        
+        .quadro .item-texto {
+            padding: 5px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+        
+        .item-texto {
+            flex: 1;
+            font-size: 0.9rem;
+            padding: 5px;
+            border-radius: 4px;
+            min-width: 0;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+        
+        .item-texto[contenteditable="true"] {
+            background-color: #f8f9fa;
+            border: 1px dashed #bdc3c7;
+        }
+        
+        .item-numero {
+            width: 50px;
+            padding: 5px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            text-align: center;
+            font-size: 0.9rem;
+        }
+        
+        .valor-item {
+            width: 50px;
+            padding: 5px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            text-align: center;
+            font-size: 0.9rem;
+            margin-left: 5px;
+        }
+        
+        .anexos-container {
+            margin-top: auto;
+            border-top: 1px solid #eee;
+            padding-top: 10px;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+        
+        .anexo-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 5px;
+            background-color: #f8f9fa;
+            border-radius: 4px;
+            font-size: 0.8rem;
+        }
+        
+        .download-anexo {
+            background-color: #3498db;
+            color: white;
+            border: none;
+            border-radius: 3px;
+            padding: 3px 8px;
+            font-size: 0.7rem;
+            cursor: pointer;
+        }
+        
+        .legenda-grafico {
+            font-size: 0.8rem;
+            color: #7f8c8d;
+            text-align: center;
+            margin-top: 5px;
+        }
+        
+        .pontuacao-total {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            font-weight: bold;
+            font-size: 1.2rem;
+            color: #2c3e50;
+            text-align: center;
+        }
+        
+        .pontuacao-label {
+            font-size: 0.7rem;
+            color: #7f8c8d;
+        }
+        
+        .ranking-container {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            background-color: #3498db;
+            color: white;
+            border-radius: 50%;
+            width: 30px;
+            height: 30px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            font-size: 0.9rem;
+        }
+        
+        .foto-preview {
+            width: 150px;
+            height: 150px;
+            border-radius: 50%;
+            object-fit: cover;
+            margin: 0 auto;
+            display: block;
+            border: 2px solid #bdc3c7;
+        }
+        
+        .pdf-btn {
+            background-color: #e74c3c;
+            color: white;
+            border: none;
+            padding: 8px 15px;
+            border-radius: 4px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            transition: background-color 0.3s;
+        }
+        
+        .pdf-btn:hover {
+            background-color: #c0392b;
+        }
+        
+        /* Modal */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0,0,0,0.5);
+            z-index: 1000;
+            justify-content: center;
+            align-items: center;
+        }
+        
+        .modal-content {
+            background-color: white;
+            border-radius: 10px;
+            padding: 25px;
+            width: 90%;
+            max-width: 500px;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.2);
+        }
+        
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+        
+        .modal-title {
+            font-size: 1.3rem;
+            font-weight: 600;
+            color: #2c3e50;
+        }
+        
+        .close-modal {
+            background: none;
+            border: none;
+            font-size: 1.5rem;
+            cursor: pointer;
+            color: #7f8c8d;
+        }
+        
+        .modal-body {
+            margin-bottom: 20px;
+        }
+        
+        .form-group {
+            margin-bottom: 15px;
+        }
+        
+        .form-group label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: 500;
+        }
+        
+        .form-control {
+            width: 100%;
+            padding: 8px 12px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 1rem;
+        }
+        
+        .modal-footer {
+            display: flex;
+            justify-content: flex-end;
+            gap: 10px;
+        }
+        
+        .btn {
+            padding: 8px 15px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 0.9rem;
+            transition: all 0.2s;
+        }
+        
+        .btn-primary {
+            background-color: #3498db;
+            color: white;
+            border: none;
+        }
+        
+        .btn-primary:hover {
+            background-color: #2980b9;
+        }
+        
+        .btn-secondary {
+            background-color: #ecf0f1;
+            color: #2c3e50;
+            border: none;
+        }
+        
+        .btn-secondary:hover {
+            background-color: #d5dbdb;
+        }
+        
+        /* Mensagem quando não há resultados */
+        .no-results {
+            grid-column: 1 / -1;
+            text-align: center;
+            padding: 40px 20px;
+            color: #7f8c8d;
+        }
+        
+        .no-results i {
+            font-size: 2rem;
+            margin-bottom: 15px;
+            display: block;
+        }
+        /* Adicione no seu CSS existente */
+        .quadro .quadro-content {
+            padding: 15px;
+            overflow: auto;
+        }
+
+        .canvas-container {
+            width: 100%;
+            height: 100%;
+            min-height: 300px;
+        }
+        /* Estilo do botão Panorama Geral */
+        .panorama-btn {
+            position: fixed;
+            bottom: 30px;
+            right: 30px;
+            background-color: #27ae60;
+            color: white;
+            border: none;
+            border-radius: 50px;
+            padding: 15px 25px;
+            font-size: 1rem;
+            cursor: pointer;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            z-index: 100;
+            transition: all 0.3s;
+        }
+
+        .panorama-btn:hover {
+            background-color: #2ecc71;
+            transform: translateY(-3px);
+            box-shadow: 0 6px 15px rgba(0,0,0,0.3);
+        }
+
+        .quadro .quadro-content canvas {
+            width: 100% !important;
+            height: 100% !important;
+        }
+
+        /* Estilos Específicos para o Panorama */
+        #panoramaDashboard {
+            grid-template-columns: repeat(auto-fill, minmax(450px, 1fr)) !important;
+            grid-auto-rows: minmax(400px, auto) !important;
+        }
+
+        #panoramaDashboard .quadro {
+            height: 100%;
+        }
+
+        #panoramaDashboard .quadro-content {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+        }
+
+        #panoramaDashboard .quadro-content canvas {
+            width: 100% !important;
+            height: 100% !important;
+            min-height: 300px;
+        }
+
+        #panoramaDashboard .quadro-header {
+            padding: 12px 15px;
+            display: flex; /* Garante que o título e o filtro fiquem na mesma linha */
+            justify-content: space-between; /* Espaça o título e o filtro */
+            align-items: center;
+        }
+        /* Estilo para o seletor de mês no panorama */
+        .panorama-month-filter {
+            margin-left: 10px;
+            padding: 5px 8px;
+            border-radius: 5px;
+            border: 1px solid #ccc;
+            font-size: 0.9rem;
+            background-color: #fff;
+            cursor: pointer;
+        }
+
+        .panorama-month-filter:focus {
+            outline: none;
+            border-color: #3498db;
+            box-shadow: 0 0 0 2px rgba(52, 152, 219, 0.2);
+        }
+    </style>
+</head>
+<body>
+    <div id="loginScreen" class="login-container">
+        <div class="login-box">
+            <h2 class="login-title">Acesso ao Sistema</h2>
+            <input type="text" id="loginUser" class="login-input" placeholder="Usuário">
+            <input type="password" id="loginPass" class="login-input" placeholder="Senha">
+            <button id="loginBtn" class="login-btn">Entrar</button>
+        </div>
+    </div>
+
+    <div id="mainMenuScreen" class="main-menu-container">
+        <div class="header-main-menu">
+            <h1>Sistema de Relatórios Médicos</h1>
+            <p>Selecione o tipo de relatório que deseja acessar</p>
+        </div>
+        
+        <div class="menu-cards-grid">
+            <div class="menu-card" id="relatorioExamesMedicos">
+                <i class="fas fa-user-md"></i>
+                <h3>Relatório de Exames/Médicos</h3>
+                <p>Acesse o dashboard de médicos e exames por especialidade</p>
+            </div>
+            
+            <div class="menu-card" id="relatorioColaboradores">
+                <i class="fas fa-users"></i>
+                <h3>Relatório Colaboradores</h3>
+                <p>Gerencie os dados dos colaboradores da instituição</p>
+            </div>
+            
+            <div class="menu-card" id="relatorioGeral">
+                <i class="fas fa-chart-pie"></i>
+                <h3>Relatório Geral</h3>
+                <p>Visualize relatórios consolidados e estatísticas gerais</p>
+            </div>
+        </div>
+    </div>
+    
+    <div id="menuScreen" class="menu-container">
+        <div class="header-menu">
+            <h1>Dashboard Médica</h1>
+            <p>Gerencie suas especialidades médicas</p>
+        </div>
+        
+        <div class="especialidades-grid" id="especialidadesGrid">
+            </div>
+        
+        <button id="addEspecialidadeBtn" class="add-especialidade-btn">
+            <i class="fas fa-plus"></i> Adicionar Especialidade
+        </button>
+
+        <button id="panoramaEspecialidadesBtn" class="panorama-btn">
+            <i class="fas fa-chart-bar"></i> Panorama Geral
+        </button>
+    </div>
+    
+    <div id="dashboardScreen" class="dashboard-container">
+        <div class="dashboard-header">
+            <div style="display: flex; align-items: center; gap: 15px;">
+                <button id="backBtn" class="back-btn">
+                    <i class="fas fa-arrow-left"></i> Voltar
+                </button>
+                <span id="especialidadeTitle" class="dashboard-title"></span>
+            </div>
+            <div class="dashboard-actions">
+                <button class="pdf-btn" id="generatePdfBtn">
+                    <i class="fas fa-file-pdf"></i> Gerar PDF
+                </button>
+                <button class="dashboard-btn" id="addQuadroBtn">
+                    <i class="fas fa-plus"></i> Adicionar Médico
+                </button>
+            </div>
+        </div>
+        
+        <div class="dashboard-content">
+            <div class="dashboard-filters">
+                <button class="filter-btn" id="filterMaiorPontuacao">
+                    <i class="fas fa-sort-amount-down"></i> Maior Pontuação
+                </button>
+                <button class="filter-btn" id="filterMenorPontuacao">
+                    <i class="fas fa-sort-amount-up"></i> Menor Pontuação
+                </button>
+                <button class="filter-btn active" id="filterPadrao">
+                    <i class="fas fa-sort"></i> Padrão
+                </button>
+                
+                <select id="filterMonth" class="filter-btn">
+                    <option value="0">Todos os meses</option>
+                    <option value="1">Janeiro</option>
+                    <option value="2">Fevereiro</option>
+                    <option value="3">Março</option>
+                    <option value="4">Abril</option>
+                    <option value="5">Maio</option>
+                    <option value="6">Junho</option>
+                    <option value="7">Julho</option>
+                    <option value="8">Agosto</option>
+                    <option value="9">Setembro</option>
+                    <option value="10">Outubro</option>
+                    <option value="11">Novembro</option>
+                    <option value="12">Dezembro</option>
+                </select>
+                
+                <select id="filterYear" class="filter-btn">
+                    <option value="0">Todos os anos</option>
+                    <option value="2023">2023</option>
+                    <option value="2024">2024</option>
+                    <option value="2025">2025</option>
+                </select>
+            </div>
+            <div class="dashboard" id="dashboard">
+                </div>
+        </div>
+    </div>
+
+    <div id="colaboradoresScreen" class="colaboradores-container">
+        <div class="header-colaboradores">
+            <h1>Relatório de Colaboradores</h1>
+            <p>Gerencie os colaboradores da instituição</p>
+        </div>
+        
+        <div class="colaboradores-grid" id="colaboradoresGrid">
+            </div>
+        
+        <button id="addColaboradorBtn" class="add-colaborador-btn">
+            <i class="fas fa-plus"></i> Adicionar Colaborador
+        </button>
+
+        <button id="panoramaColaboradoresBtn" class="panorama-btn">
+            <i class="fas fa-chart-bar"></i> Panorama Geral
+        </button>
+    </div>
+
+   <div id="panoramaScreen" class="dashboard-container" style="display: none;">
+    <div class="dashboard-header">
+        <div style="display: flex; align-items: center; gap: 15px;">
+            <button id="backFromPanoramaBtn" class="back-btn">
+                <i class="fas fa-arrow-left"></i> Voltar
+            </button>
+            <span class="dashboard-title">Panorama Geral</span>
+        </div>
+    </div>
+    
+    <div class="dashboard-content">
+        <div class="dashboard" id="panoramaDashboard" 
+             style="grid-template-columns: repeat(auto-fill, minmax(450px, 1fr)); grid-auto-rows: minmax(400px, auto);">
+            </div>
+    </div>
+</div>
+
+    <div id="especialidadeModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 id="modalTitle" class="modal-title"></h2>
+                <button class="close-modal" id="closeModal">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div class="form-group">
+                    <label for="especialidadeNome">Nome da Especialidade:</label>
+                    <input type="text" id="especialidadeNome" class="form-control" placeholder="Ex: Cardiologia">
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-secondary" id="cancelModal">Cancelar</button>
+                <button class="btn btn-primary" id="saveEspecialidade">Salvar</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="colaboradorModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 id="modalColaboradorTitle" class="modal-title"></h2>
+                <button class="close-modal" id="closeColaboradorModal">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div class="form-group">
+                    <label for="colaboradorNome">Nome do Colaborador:</label>
+                    <input type="text" id="colaboradorNome" class="form-control" placeholder="Ex: João Silva">
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-secondary" id="cancelColaboradorModal">Cancelar</button>
+                <button class="btn btn-primary" id="saveColaborador">Salvar</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="anexoModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 class="modal-title">Adicionar Anexo</h2>
+                <button class="close-modal" id="closeAnexoModal">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div class="form-group">
+                    <label for="anexoNome">Nome do Anexo:</label>
+                    <input type="text" id="anexoNome" class="form-control" placeholder="Ex: Relatório de Exames">
+                </div>
+                <div class="form-group">
+                    <label for="anexoArquivo">Arquivo:</label>
+                    <input type="file" id="anexoArquivo" class="form-control">
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-secondary" id="cancelAnexoModal">Cancelar</button>
+                <button class="btn btn-primary" id="saveAnexo">Salvar Anexo</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="fotoModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 class="modal-title">Adicionar Foto</h2>
+                <button class="close-modal" id="closeFotoModal">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div class="form-group">
+                    <label for="fotoArquivo">Selecione a Imagem:</label>
+                    <input type="file" id="fotoArquivo" class="form-control" accept="image/*">
+                </div>
+                <div id="fotoPreview" style="text-align: center; margin-top: 15px;">
+                    <div class="foto-placeholder"><i class="fas fa-user-md" style="font-size: 2rem; color: #7f8c8d;"></i></div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-secondary" id="cancelFotoModal">Cancelar</button>
+                <button class="btn btn-primary" id="saveFoto">Salvar Foto</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="dataModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 class="modal-title">Definir Período</h2>
+                <button class="close-modal" id="closeDataModal">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div class="form-group">
+                    <label for="quadroMonth">Mês:</label>
+                    <select id="quadroMonth" class="form-control">
+                        <option value="1">Janeiro</option>
+                        <option value="2">Fevereiro</option>
+                        <option value="3">Março</option>
+                        <option value="4">Abril</option>
+                        <option value="5">Maio</option>
+                        <option value="6">Junho</option>
+                        <option value="7">Julho</option>
+                        <option value="8">Agosto</option>
+                        <option value="9">Setembro</option>
+                        <option value="10">Outubro</option>
+                        <option value="11">Novembro</option>
+                        <option value="12">Dezembro</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="quadroYear">Ano:</label>
+                    <input type="number" id="quadroYear" class="form-control" min="2000" max="2100" value="2024">
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-secondary" id="cancelDataModal">Cancelar</button>
+                <button class="btn btn-primary" id="saveDataBtn">Salvar Período</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // =============================================
+        // SISTEMA DE AUTENTICAÇÃO
+        // =============================================
+        const users = {
+            editor: { password: "edit123", role: "editor" },
+            viewer: { password: "view123", role: "viewer" }
+        };
+        
+        let currentUser = null;
+        let isEditMode = false;
+        let needsRankingUpdate = false;
+        
+        // Elementos de login
+        const loginScreen = document.getElementById('loginScreen');
+        const loginUser = document.getElementById('loginUser');
+        const loginPass = document.getElementById('loginPass');
+        const loginBtn = document.getElementById('loginBtn');
+        
+        // Função de login melhorada
+        function handleLogin() {
+            const username = loginUser.value.trim();
+            const password = loginPass.value.trim();
+            
+            if (users[username] && users[username].password === password) {
+                currentUser = username;
+                isEditMode = users[username].role === "editor";
+                loginScreen.style.display = "none";
+                mainMenuScreen.style.display = 'flex';
+                updateUIForUserRole();
+                
+                // Mostra mensagem de boas-vindas
+                // Usando um modal customizado em vez de alert
+                showCustomMessage(`Bem-vindo, ${username}! Modo ${isEditMode ? 'Editor' : 'Visualização'}`);
+            } else {
+                showCustomMessage("Credenciais inválidas! Tente novamente.");
+                loginPass.value = '';
+                loginPass.focus();
+            }
+        }
+
+        // Função para mostrar mensagens personalizadas (substitui alert)
+        function showCustomMessage(message) {
+            const modal = document.createElement('div');
+            modal.className = 'modal';
+            modal.innerHTML = `
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h2 class="modal-title">Aviso</h2>
+                        <button class="close-modal">&times;</button>
+                    </div>
+                    <div class="modal-body">
+                        <p>${message}</p>
+                    </div>
+                    <div class="modal-footer">
+                        <button class="btn btn-primary">OK</button>
+                    </div>
+                </div>
+            `;
+            document.body.appendChild(modal);
+            modal.style.display = 'flex';
+
+            const closeModalBtn = modal.querySelector('.close-modal');
+            const okBtn = modal.querySelector('.btn-primary');
+
+            const closeAndRemoveModal = () => {
+                modal.style.display = 'none';
+                modal.remove();
+            };
+
+            closeModalBtn.addEventListener('click', closeAndRemoveModal);
+            okBtn.addEventListener('click', closeAndRemoveModal);
+            modal.addEventListener('click', (e) => {
+                if (e.target === modal) {
+                    closeAndRemoveModal();
+                }
+            });
+        }
+
+        // Função para mostrar confirmações personalizadas (substitui confirm)
+        function showCustomConfirm(message, onConfirm, onCancel) {
+            const modal = document.createElement('div');
+            modal.className = 'modal';
+            modal.innerHTML = `
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h2 class="modal-title">Confirmação</h2>
+                        <button class="close-modal">&times;</button>
+                    </div>
+                    <div class="modal-body">
+                        <p>${message}</p>
+                    </div>
+                    <div class="modal-footer">
+                        <button class="btn btn-secondary cancel-btn">Cancelar</button>
+                        <button class="btn btn-primary confirm-btn">Confirmar</button>
+                    </div>
+                </div>
+            `;
+            document.body.appendChild(modal);
+            modal.style.display = 'flex';
+
+            const closeModalBtn = modal.querySelector('.close-modal');
+            const confirmBtn = modal.querySelector('.confirm-btn');
+            const cancelBtn = modal.querySelector('.cancel-btn');
+
+            const closeAndRemoveModal = () => {
+                modal.style.display = 'none';
+                modal.remove();
+            };
+
+            confirmBtn.addEventListener('click', () => {
+                closeAndRemoveModal();
+                if (typeof onConfirm === 'function') onConfirm();
+            });
+
+            cancelBtn.addEventListener('click', () => {
+                closeAndRemoveModal();
+                if (typeof onCancel === 'function') onCancel();
+            });
+
+            closeModalBtn.addEventListener('click', () => {
+                closeAndRemoveModal();
+                if (typeof onCancel === 'function') onCancel();
+            });
+            modal.addEventListener('click', (e) => {
+                if (e.target === modal) {
+                    closeAndRemoveModal();
+                    if (typeof onCancel === 'function') onCancel();
+                }
+            });
+        }
+
+
+        // Função para carregar dados do panorama
+        function loadPanoramaData() {
+            panoramaData = {
+                especialidades: {},
+                colaboradores: {}
+            };
+            
+            // Carrega dados das especialidades
+            especialidades.forEach(esp => {
+                const savedData = localStorage.getItem(`dashboard_${esp.id}`);
+                if (savedData) {
+                    panoramaData.especialidades[esp.id] = {
+                        nome: esp.nome,
+                        dados: JSON.parse(savedData)
+                    };
+                }
+            });
+            
+            // Carrega dados dos colaboradores
+            colaboradores.forEach(col => {
+                const savedData = localStorage.getItem(`dashboard_colaborador_${col.id}`);
+                if (savedData) {
+                    panoramaData.colaboradores[col.id] = {
+                        nome: col.nome,
+                        dados: JSON.parse(savedData)
+                    };
+                }
+            });
+        }
+
+        // Função para mostrar o panorama
+        function showPanorama() {
+            // Esconde todas as telas
+            mainMenuScreen.style.display = 'none';
+            menuScreen.style.display = 'none';
+            colaboradoresScreen.style.display = 'none';
+            dashboardScreen.style.display = 'none';
+            
+            // Mostra o panorama
+            panoramaScreen.style.display = 'flex';
+            
+            // Carrega os dados e gráficos
+            loadPanoramaData();
+            loadPanoramaCharts();
+        }
+        // Função centralizada para verificar ações
+        function verifyAction(action, callback) {
+            if (isEditMode || action === 'view') {
+                if (typeof callback === 'function') {
+                    callback();
+                    return true;
+                }
+            } else {
+                showCustomMessage("Apenas usuários editores podem realizar esta ação!");
+                return false;
+            }
+        }
+        
+        // Atualiza a UI baseada no tipo de usuário (melhorada)
+        function updateUIForUserRole() {
+            // Mostra aviso se for visualizador
+            if (!isEditMode) {
+                const existingWarning = document.querySelector('.view-mode-warning');
+                if (!existingWarning) {
+                    const warning = document.createElement('div');
+                    warning.className = 'view-mode-warning';
+                    warning.textContent = 'MODO VISUALIZAÇÃO - Somente leitura';
+                    document.body.appendChild(warning);
+                }
+            } else {
+                const warning = document.querySelector('.view-mode-warning');
+                if (warning) warning.remove();
+            }
+            
+            // Atualiza campos editáveis
+            document.querySelectorAll('[contenteditable="true"]').forEach(el => {
+                el.contentEditable = isEditMode;
+                el.classList.toggle('disabled-field', !isEditMode);
+            });
+            
+            // Atualiza botões de ação
+            document.querySelectorAll('.action-btn, .medico-btn, .add-especialidade-btn, .add-colaborador-btn, .add-quadro-btn, .remove-quadro-btn, .dashboard-btn, .pdf-btn')
+                .forEach(btn => btn.classList.toggle('hidden-in-view', !isEditMode));
+            
+            // Recarrega os quadros se estiver na tela de dashboard
+            if (dashboardScreen.style.display === 'flex') {
+                loadQuadros();
+            }
+        }
+        
+        // =============================================
+        // VARIÁVEIS DE ESTADO E INICIALIZAÇÃO
+        // =============================================
+        const coresGrafico = [
+            '#3498db', '#2ecc71', '#e74c3c', '#f39c12', 
+            '#9b59b6', '#1abc9c', '#d35400', '#34495e',
+            '#27ae60', '#c0392b'
+        ];
+        
+        let especialidades = [
+            { id: 'cardiologia', nome: 'Cardiologia' },
+            { id: 'ortopedia', nome: 'Ortopedia' },
+            { id: 'pediatria', nome: 'Pediatria' }
+        ];
+        
+        let colaboradores = [
+            { id: 'rh', nome: 'Recursos Humanos' },
+            { id: 'enfermagem', nome: 'Enfermagem' },
+            { id: 'administrativo', nome: 'Administrativo' }
+        ];
+        
+        let quadroCount = 0;
+        const graficos = {}; // Gráficos de quadros individuais
+        const panoramaCharts = {}; // Gráficos do panorama geral
+        let currentEspecialidade = null;
+        let currentColaborador = null;
+        const dadosEspecialidades = {};
+        const dadosColaboradores = {};
+        let editingEspecialidadeId = null;
+        let editingColaboradorId = null;
+        let currentQuadroIdForAnexo = null;
+        let currentQuadroIdForFoto = null;
+        let currentFilter = 'padrao';
+        let currentMonthFilter = 0;
+        let currentYearFilter = 0;
+        let currentQuadroIdForData = null;
+        let panoramaData = {};
+        let panoramaCurrentMonthFilter = 0; // Novo filtro de mês para o panorama
+        
+        // Elementos da interface
+        const mainMenuScreen = document.getElementById('mainMenuScreen');
+        const menuScreen = document.getElementById('menuScreen');
+        const dashboardScreen = document.getElementById('dashboardScreen');
+        const colaboradoresScreen = document.getElementById('colaboradoresScreen');
+        const panoramaScreen = document.getElementById('panoramaScreen');
+        
+        const especialidadesGrid = document.getElementById('especialidadesGrid');
+        const colaboradoresGrid = document.getElementById('colaboradoresGrid');
+        
+        const backBtn = document.getElementById('backBtn');
+        const especialidadeTitle = document.getElementById('especialidadeTitle');
+        const addQuadroBtn = document.getElementById('addQuadroBtn');
+        const dashboard = document.getElementById('dashboard');
+        const addEspecialidadeBtn = document.getElementById('addEspecialidadeBtn');
+        const addColaboradorBtn = document.getElementById('addColaboradorBtn');
+        const panoramaEspecialidadesBtn = document.getElementById('panoramaEspecialidadesBtn');
+        const panoramaColaboradoresBtn = document.getElementById('panoramaColaboradoresBtn');
+        const backFromPanoramaBtn = document.getElementById('backFromPanoramaBtn');
+        const panoramaDashboard = document.getElementById('panoramaDashboard');
+        
+        // Filtros
+        const filterMaiorPontuacao = document.getElementById('filterMaiorPontuacao');
+        const filterMenorPontuacao = document.getElementById('filterMenorPontuacao');
+        const filterPadrao = document.getElementById('filterPadrao');
+        const filterMonth = document.getElementById('filterMonth');
+        const filterYear = document.getElementById('filterYear');
+        
+        // Modais
+        const especialidadeModal = document.getElementById('especialidadeModal');
+        const closeModal = document.getElementById('closeModal');
+        const cancelModal = document.getElementById('cancelModal');
+        const saveEspecialidade = document.getElementById('saveEspecialidade');
+        const especialidadeNome = document.getElementById('especialidadeNome');
+        const modalTitle = document.getElementById('modalTitle');
+        
+        const colaboradorModal = document.getElementById('colaboradorModal');
+        const closeColaboradorModal = document.getElementById('closeColaboradorModal');
+        const cancelColaboradorModal = document.getElementById('cancelColaboradorModal');
+        const saveColaborador = document.getElementById('saveColaborador');
+        const colaboradorNome = document.getElementById('colaboradorNome');
+        const modalColaboradorTitle = document.getElementById('modalColaboradorTitle');
+        
+        const anexoModal = document.getElementById('anexoModal');
+        const closeAnexoModal = document.getElementById('closeAnexoModal');
+        const cancelAnexoModal = document.getElementById('cancelAnexoModal');
+        const saveAnexo = document.getElementById('saveAnexo');
+        const anexoNome = document.getElementById('anexoNome');
+        const anexoArquivo = document.getElementById('anexoArquivo');
+
+        const fotoModal = document.getElementById('fotoModal');
+        const closeFotoModal = document.getElementById('closeFotoModal');
+        const cancelFotoModal = document.getElementById('cancelFotoModal');
+        const saveFoto = document.getElementById('saveFoto');
+        const fotoArquivo = document.getElementById('fotoArquivo');
+        const fotoPreview = document.getElementById('fotoPreview');
+
+        const dataModal = document.getElementById('dataModal');
+        const closeDataModal = document.getElementById('closeDataModal');
+        const cancelDataModal = document.getElementById('cancelDataModal');
+        const saveDataBtn = document.getElementById('saveDataBtn');
+        const quadroMonth = document.getElementById('quadroMonth');
+        const quadroYear = document.getElementById('quadroYear');
+
+        const generatePdfBtn = document.getElementById('generatePdfBtn');
+        
+        // =============================================
+        // FUNÇÕES PRINCIPAIS
+        // =============================================
+
+        // Inicialização - Carrega as especialidades
+        function initMenu() {
+            especialidadesGrid.innerHTML = '';
+            
+            // Tenta carregar do localStorage
+            const savedEspecialidades = localStorage.getItem('especialidades');
+            if (savedEspecialidades) {
+                especialidades = JSON.parse(savedEspecialidades);
+            }
+            
+            especialidades.forEach(especialidade => {
+                const card = document.createElement('div');
+                card.className = 'especialidade-card';
+                card.setAttribute('data-id', especialidade.id);
+                
+                card.innerHTML = `
+                    <div class="especialidade-nome" contenteditable="false">${especialidade.nome}</div>
+                    <div class="especialidade-actions">
+                        <button class="action-btn edit-btn" data-id="${especialidade.id}" title="Editar">
+                            <i class="fas fa-edit"></i>
+                        </button>
+                        <button class="action-btn delete-btn" data-id="${especialidade.id}" title="Excluir">
+                            <i class="fas fa-trash"></i>
+                        </button>
+                        <button class="action-btn open-btn" data-id="${especialidade.id}" title="Abrir">
+                            <i class="fas fa-arrow-right"></i>
+                        </button>
+                    </div>
+                `;
+                
+                especialidadesGrid.appendChild(card);
+            });
+            
+            // Configura eventos dos botões
+            document.querySelectorAll('.edit-btn').forEach(btn => {
+                btn.addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    verifyAction('edit', () => openEditEspecialidadeModal(btn.getAttribute('data-id')));
+                });
+            });
+            
+            document.querySelectorAll('.delete-btn').forEach(btn => {
+                btn.addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    showCustomConfirm('Tem certeza que deseja excluir esta especialidade? Todos os dados associados serão perdidos.', 
+                        () => deleteEspecialidade(btn.getAttribute('data-id'))
+                    );
+                });
+            });
+            
+            document.querySelectorAll('.open-btn').forEach(btn => {
+                btn.addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    const especialidade = especialidades.find(esp => esp.id === btn.getAttribute('data-id'));
+                    if (especialidade) openDashboard(especialidade);
+                });
+            });
+            
+            document.querySelectorAll('.especialidade-card').forEach(card => {
+                card.addEventListener('click', (e) => {
+                    // Só abre se o clique não foi em um botão de ação
+                    if (!e.target.closest('.action-btn')) {
+                        const especialidade = especialidades.find(esp => esp.id === card.getAttribute('data-id'));
+                        if (especialidade) openDashboard(especialidade);
+                    }
+                });
+            });
+        }
+        
+        // Inicialização - Carrega os colaboradores
+        function initColaboradores() {
+            colaboradoresGrid.innerHTML = '';
+            
+            // Tenta carregar do localStorage
+            const savedColaboradores = localStorage.getItem('colaboradores');
+            if (savedColaboradores) {
+                colaboradores = JSON.parse(savedColaboradores);
+            }
+            
+            colaboradores.forEach(colaborador => {
+                const card = document.createElement('div');
+                card.className = 'colaborador-card';
+                card.setAttribute('data-id', colaborador.id);
+                
+                card.innerHTML = `
+                    <div class="colaborador-nome" contenteditable="false">${colaborador.nome}</div>
+                    <div class="colaborador-actions">
+                        <button class="action-btn edit-btn" data-id="${colaborador.id}" title="Editar">
+                            <i class="fas fa-edit"></i>
+                        </button>
+                        <button class="action-btn delete-btn" data-id="${colaborador.id}" title="Excluir">
+                            <i class="fas fa-trash"></i>
+                        </button>
+                        <button class="action-btn open-btn" data-id="${colaborador.id}" title="Abrir">
+                            <i class="fas fa-arrow-right"></i>
+                        </button>
+                    </div>
+                `;
+                
+                colaboradoresGrid.appendChild(card);
+            });
+            
+            // Configura eventos dos botões
+            document.querySelectorAll('.edit-btn').forEach(btn => {
+                btn.addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    verifyAction('edit', () => openEditColaboradorModal(btn.getAttribute('data-id')));
+                });
+            });
+            
+            document.querySelectorAll('.delete-btn').forEach(btn => {
+                btn.addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    showCustomConfirm('Tem certeza que deseja excluir este colaborador? Todos os dados associados serão perdidos.',
+                        () => deleteColaborador(btn.getAttribute('data-id'))
+                    );
+                });
+            });
+            
+            document.querySelectorAll('.open-btn').forEach(btn => {
+                btn.addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    const colaborador = colaboradores.find(col => col.id === btn.getAttribute('data-id'));
+                    if (colaborador) openColaboradorDashboard(colaborador);
+                });
+            });
+            
+            document.querySelectorAll('.colaborador-card').forEach(card => {
+                card.addEventListener('click', (e) => {
+                    // Só abre se o clique não foi em um botão de ação
+                    if (!e.target.closest('.action-btn')) {
+                        const colaborador = colaboradores.find(col => col.id === card.getAttribute('data-id'));
+                        if (colaborador) openColaboradorDashboard(colaborador);
+                    }
+                });
+            });
+        }
+        
+        // Abre o dashboard para uma especialidade
+        function openDashboard(especialidade) {
+            currentEspecialidade = especialidade;
+            currentColaborador = null;
+            especialidadeTitle.textContent = especialidade.nome;
+            
+            // Carrega dados
+            if (!dadosEspecialidades[especialidade.id]) {
+                const savedData = localStorage.getItem(`dashboard_${especialidade.id}`);
+                dadosEspecialidades[especialidade.id] = savedData ? JSON.parse(savedData) : { quadros: {}, nextQuadroId: 1 };
+            }
+            
+            // Atualiza o contador
+            quadroCount = dadosEspecialidades[especialidade.id].nextQuadroId - 1;
+            
+            // Carrega filtros salvos
+            loadSavedFilters();
+            
+            menuScreen.style.display = 'none';
+            dashboardScreen.style.display = 'flex';
+            
+            // Carrega os quadros
+            loadQuadros();
+        }
+        
+        // Abre o dashboard para um colaborador
+        function openColaboradorDashboard(colaborador) {
+            currentColaborador = colaborador;
+            currentEspecialidade = null;
+            especialidadeTitle.textContent = colaborador.nome;
+            
+            // Carrega os dados do colaborador (se existirem)
+            if (!dadosColaboradores[colaborador.id]) {
+                const savedData = localStorage.getItem(`dashboard_colaborador_${colaborador.id}`);
+                dadosColaboradores[colaborador.id] = savedData ? JSON.parse(savedData) : { quadros: {}, nextQuadroId: 1 };
+            }
+            
+            // Atualiza o contador
+            quadroCount = dadosColaboradores[colaborador.id].nextQuadroId - 1;
+            
+            // Carrega filtros salvos
+            loadSavedFilters();
+            
+            colaboradoresScreen.style.display = 'none';
+            dashboardScreen.style.display = 'flex';
+            
+            // Carrega os quadros
+            loadQuadros();
+        }
+        
+        // Carrega os quadros (unificada para especialidades e colaboradores)
+        function loadQuadros() {
+            dashboard.innerHTML = '';
+            
+            const dataSource = currentEspecialidade ? 
+                dadosEspecialidades[currentEspecialidade.id]?.quadros : 
+                currentColaborador ? 
+                dadosColaboradores[currentColaborador.id]?.quadros : 
+                null;
+            
+            if (dataSource) {
+                let quadrosArray = Object.entries(dataSource)
+                    .map(([id, data]) => ({ id, ...data }));
+                
+                // Aplica filtro por período
+                quadrosArray = filtrarPorPeriodo(quadrosArray);
+                
+                // Aplica filtro de ordenação
+                switch(currentFilter) {
+                    case 'maior': 
+                        quadrosArray.sort((a, b) => (b.pontuacao || 0) - (a.pontuacao || 0)); 
+                        break;
+                    case 'menor': 
+                        quadrosArray.sort((a, b) => (a.pontuacao || 0) - (b.pontuacao || 0)); 
+                        break;
+                    default: 
+                        quadrosArray.sort((a, b) => parseInt(a.id) - parseInt(b.id));
+                }
+                
+                // Mostra mensagem se não houver quadros com os filtros atuais
+                if (quadrosArray.length === 0) {
+                    const noResults = document.createElement('div');
+                    noResults.className = 'no-results';
+                    noResults.style.gridColumn = '1 / -1';
+                    noResults.style.textAlign = 'center';
+                    noResults.style.padding = '40px 20px';
+                    noResults.style.color = '#7f8c8d';
+                    noResults.innerHTML = `
+                        <i class="fas fa-search" style="font-size: 2rem; margin-bottom: 15px;"></i>
+                        <div>Nenhum resultado encontrado com os filtros atuais</div>
+                    `;
+                    dashboard.appendChild(noResults);
+                    return;
+                }
+                
+                // Cria os quadros conforme o modo
+                quadrosArray.forEach(quadro => {
+                    if (isEditMode) {
+                        criarNovoQuadro(quadro.id, quadro);
+                    } else {
+                        criarQuadroVisualizacao(quadro.id, quadro);
+                    }
+                });
+            }
+        }
+        
+        // Função de filtro por período (corrigida)
+        function filtrarPorPeriodo(quadrosArray) {
+            return quadrosArray.filter(quadro => {
+                const quadroData = currentEspecialidade ? 
+                    dadosEspecialidades[currentEspecialidade.id].quadros[quadro.id] :
+                    currentColaborador ?
+                    dadosColaboradores[currentColaborador.id].quadros[quadro.id] :
+                    null;
+                
+                if (!quadroData?.data) {
+                    return currentMonthFilter === 0 && currentYearFilter === 0;
+                }
+                
+                const matchMonth = currentMonthFilter === 0 || quadroData.data.mes === currentMonthFilter;
+                const matchYear = currentYearFilter === 0 || quadroData.data.ano === currentYearFilter;
+                
+                return matchMonth && matchYear;
+            });
+        }
+        
+        // Cria um novo quadro (card de médico/colaborador)
+        function criarNovoQuadro(quadroId = null, dados = null) {
+            if (!verifyAction('edit', () => {})) return;
+            
+            const isColaborador = currentColaborador !== null;
+            
+            if (!currentEspecialidade && !currentColaborador) return;
+            
+            if (!quadroId) {
+                quadroCount++;
+                quadroId = quadroCount;
+            }
+            
+            const quadro = document.createElement('div');
+            quadro.className = 'quadro';
+            quadro.setAttribute('data-id', quadroId);
+            quadro.innerHTML = `
+                <div class="quadro-header">
+                    
+                    <button class="remove-quadro-btn" data-quadro-id="${quadroId}">
+                        <i class="fas fa-times"></i>
+                    </button>
+                    ${dados?.pontuacao ? `<div class="ranking-container" id="ranking${quadroId}">${dados.ranking || ''}</div>` : ''}
+                </div>
+                <div class="quadro-content">
+                    <div class="medico-info">
+                        <div class="foto-container">
+                            <div class="grafico-container">
+                                <canvas id="grafico${quadroId}"></canvas>
+                                ${dados?.pontuacao ? `<div class="pontuacao-total" id="pontuacao${quadroId}">
+                                    <div>${dados.pontuacao}</div>
+                                    <div class="pontuacao-label">pontos</div>
+                                </div>` : '<div class="pontuacao-total" id="pontuacao' + quadroId + '"><div>0</div><div class="pontuacao-label">pontos</div></div>'}
+                            </div>
+                            <div class="foto-medico">
+                                ${dados?.foto ? `<img src="${dados.foto}" style="width: 100%; height: 100%; object-fit: cover;">` : 
+                                '<div class="foto-placeholder"><i class="fas fa-user-md" style="font-size: 2rem; color: #7f8c8d;"></i></div>'}
+                            </div>
+                        </div>
+                        <div class="info-container">
+                            <div class="nome-medico" contenteditable="true">${dados?.nome || (isColaborador ? 'Nome Colaborador' : 'Dr. Nome')}</div>
+                            <div class="crm" contenteditable="true">${dados?.crm || (isColaborador ? 'ID: ' + String(quadroId).padStart(6, '0') : 'CRM: ' + String(quadroId).padStart(6, '0'))}</div>
+                            <div class="medico-actions">
+                                <button class="medico-btn add-photo-btn">
+                                    <i class="fas fa-camera"></i> Foto
+                                </button>
+                                <button class="medico-btn add-anexo-btn">
+                                    <i class="fas fa-paperclip"></i> Anexo
+                                </button>
+                                <button class="medico-btn edit-data-btn">
+                                    <i class="fas fa-calendar-alt"></i> Período
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="itens-container">
+                        <div class="item-container">
+                            <div class="item-texto" contenteditable="true">${dados?.itens?.[0]?.texto || (isColaborador ? 'Atividade 1' : 'Consulta')}</div>
+                            <input type="number" class="item-numero" placeholder="0" min="0" value="${dados?.itens?.[0]?.valor || ''}">
+                            <input type="number" class="valor-item" placeholder="0" min="0" value="${dados?.itens?.[0]?.valorItem || ''}">
+                        </div>
+                        <div class="item-container">
+                            <div class="item-texto" contenteditable="true">${dados?.itens?.[1]?.texto || (isColaborador ? 'Atividade 2' : 'Cirurgia')}</div>
+                            <input type="number" class="item-numero" placeholder="0" min="0" value="${dados?.itens?.[1]?.valor || ''}">
+                            <input type="number" class="valor-item" placeholder="0" min="0" value="${dados?.itens?.[1]?.valorItem || ''}">
+                        </div>
+                        <div class="item-container">
+                            <div class="item-texto" contenteditable="true">${dados?.itens?.[2]?.texto || (isColaborador ? 'Atividade 3' : 'Exame')}</div>
+                            <input type="number" class="item-numero" placeholder="0" min="0" value="${dados?.itens?.[2]?.valor || ''}">
+                            <input type="number" class="valor-item" placeholder="0" min="0" value="${dados?.itens?.[2]?.valorItem || ''}">
+                        </div>
+                        <div class="item-container">
+                            <div class="item-texto" contenteditable="true">${dados?.itens?.[3]?.texto || (isColaborador ? 'Atividade 4' : 'Atendimento')}</div>
+                            <input type="number" class="item-numero" placeholder="0" min="0" value="${dados?.itens?.[3]?.valor || ''}">
+                            <input type="number" class="valor-item" placeholder="0" min="0" value="${dados?.itens?.[3]?.valorItem || ''}">
+                        </div>
+                        <div class="item-container">
+                            <div class="item-texto" contenteditable="true">${dados?.itens?.[4]?.texto || (isColaborador ? 'Atividade 5' : 'Laudo')}</div>
+                            <input type="number" class="item-numero" placeholder="0" min="0" value="${dados?.itens?.[4]?.valor || ''}">
+                            <input type="number" class="valor-item" placeholder="0" min="0" value="${dados?.itens?.[4]?.valorItem || ''}">
+                        </div>
+                        <div class="item-container">
+                            <div class="item-texto" contenteditable="true">${dados?.itens?.[5]?.texto || (isColaborador ? 'Atividade 6' : 'Retorno')}</div>
+                            <input type="number" class="item-numero" placeholder="0" min="0" value="${dados?.itens?.[5]?.valor || ''}">
+                            <input type="number" class="valor-item" placeholder="0" min="0" value="${dados?.itens?.[5]?.valorItem || ''}">
+                        </div>
+                        <div class="item-container">
+                            <div class="item-texto" contenteditable="true">${dados?.itens?.[6]?.texto || (isColaborador ? 'Atividade 7' : 'Emergência')}</div>
+                            <input type="number" class="item-numero" placeholder="0" min="0" value="${dados?.itens?.[6]?.valor || ''}">
+                            <input type="number" class="valor-item" placeholder="0" min="0" value="${dados?.itens?.[6]?.valorItem || ''}">
+                        </div>
+                        <div class="item-container">
+                            <div class="item-texto" contenteditable="true">${dados?.itens?.[7]?.texto || (isColaborador ? 'Atividade 8' : 'Visita')}</div>
+                            <input type="number" class="item-numero" placeholder="0" min="0" value="${dados?.itens?.[7]?.valor || ''}">
+                            <input type="number" class="valor-item" placeholder="0" min="0" value="${dados?.itens?.[7]?.valorItem || ''}">
+                        </div>
+                    </div>
+                    
+                    <div class="anexos-container" id="anexos${quadroId}">
+                        ${dados?.anexos ? dados.anexos.map(anexo => `
+                            <div class="anexo-item" data-nome="${anexo.nome}">
+                                <div class="anexo-nome">${anexo.nome}</div>
+                                <button class="download-anexo" data-url="${anexo.url}">
+                                    <i class="fas fa-download"></i>
+                                </button>
+                            </div>
+                        `).join('') : ''}
+                    </div>
+                    
+                    <div class="legenda-grafico" id="legenda${quadroId}">
+                        ${dados?.legenda ? '' : 'Edite os campos para atualizar o gráfico'}
+                    </div>
+                </div>
+            `;
+            
+            dashboard.appendChild(quadro);
+            
+            // Inicializar gráfico
+            const ctx = document.getElementById(`grafico${quadroId}`).getContext('2d');
+            graficos[quadroId] = new Chart(ctx, {
+                type: 'doughnut',
+                data: {
+                    labels: dados?.legenda?.labels || [],
+                    datasets: [{
+                        data: dados?.legenda?.dados || [],
+                        backgroundColor: coresGrafico,
+                        borderWidth: 0
+                    }]
+                },
+                options: {
+                    cutout: '75%',
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: { display: false },
+                        tooltip: { enabled: false }
+                    },
+                    animation: { animateScale: true }
+                }
+            });
+            
+            // Configura eventos do quadro
+            const removeBtn = quadro.querySelector('.remove-quadro-btn');
+            removeBtn.addEventListener('click', () => {
+                verifyAction('edit', () => {
+                    showCustomConfirm('Tem certeza que deseja remover este item?', () => {
+                        quadro.remove();
+                        if (currentEspecialidade) {
+                            delete dadosEspecialidades[currentEspecialidade.id].quadros[quadroId];
+                        } else if (currentColaborador) {
+                            delete dadosColaboradores[currentColaborador.id].quadros[quadroId];
+                        }
+                        saveData();
+                        atualizarRanking();
+                    });
+                });
+            });
+            
+            // Atualiza o gráfico quando os valores são alterados
+            const inputs = quadro.querySelectorAll('.item-numero');
+            const textos = quadro.querySelectorAll('.item-texto');
+            const valorItems = quadro.querySelectorAll('.valor-item');
+            
+            inputs.forEach((input, index) => {
+                input.addEventListener('input', () => {
+                    atualizarGrafico(quadroId);
+                    calcularPontuacao(quadroId);
+                });
+            });
+            
+            textos.forEach((texto, index) => {
+                texto.addEventListener('input', () => {
+                    atualizarGrafico(quadroId);
+                });
+            });
+            
+            valorItems.forEach((valorItem, index) => {
+                valorItem.addEventListener('input', () => {
+                    calcularPontuacao(quadroId);
+                });
+            });
+            
+            // Salva os dados editáveis
+            const nomeMedico = quadro.querySelector('.nome-medico');
+            const crmMedico = quadro.querySelector('.crm');
+            
+            nomeMedico.addEventListener('blur', () => {
+                saveQuadroData(quadroId);
+            });
+            
+            crmMedico.addEventListener('blur', () => {
+                saveQuadroData(quadroId);
+            });
+            
+            // Botão de adicionar foto
+            const addPhotoBtn = quadro.querySelector('.add-photo-btn');
+            addPhotoBtn.addEventListener('click', () => {
+                verifyAction('edit', () => openFotoModal(quadroId));
+            });
+            
+            // Botão de adicionar anexo
+            const addAnexoBtn = quadro.querySelector('.add-anexo-btn');
+            addAnexoBtn.addEventListener('click', () => {
+                verifyAction('edit', () => openAnexoModal(quadroId));
+            });
+            
+            // Botão de editar período
+            const editDataBtn = quadro.querySelector('.edit-data-btn');
+            editDataBtn.addEventListener('click', () => {
+                verifyAction('edit', () => openDataModal(quadroId));
+            });
+            
+            // Se houver dados, calcula a pontuação inicial
+            if (dados) {
+                calcularPontuacao(quadroId);
+            }
+        }
+        
+        // Cria um quadro de visualização (somente leitura)
+        function criarQuadroVisualizacao(quadroId, dados) {
+            const isColaborador = currentColaborador !== null;
+            
+            const quadro = document.createElement('div');
+            quadro.className = 'quadro';
+            quadro.setAttribute('data-id', quadroId);
+            quadro.innerHTML = `
+                <div class="quadro-header">
+                    <div class="quadro-title">${isColaborador ? 'Colaborador' : 'Médico'} #${quadroId}</div>
+                    ${dados?.pontuacao ? `<div class="ranking-container">${dados.ranking || ''}</div>` : ''}
+                </div>
+                <div class="quadro-content">
+                    <div class="medico-info">
+                        <div class="foto-container">
+                            <div class="grafico-container">
+                                <canvas id="grafico${quadroId}"></canvas>
+                                ${dados?.pontuacao ? `
+                                <div class="pontuacao-total">
+                                    <div>${dados.pontuacao}</div>
+                                    <div class="pontuacao-label">pontos</div>
+                                </div>` : ''}
+                            </div>
+                            <div class="foto-medico">
+                                ${dados?.foto ? `<img src="${dados.foto}" style="width: 100%; height: 100%; object-fit: cover;">` : 
+                                '<div class="foto-placeholder"><i class="fas fa-user-md"></i></div>'}
+                            </div>
+                        </div>
+                        <div class="info-container">
+                            <div class="nome-medico">${dados?.nome || ''}</div>
+                            <div class="crm">${dados?.crm || ''}</div>
+                        </div>
+                    </div>
+                    
+                    <div class="itens-container">
+                        ${dados?.itens?.map(item => `
+                        <div class="item-container">
+                            <div class="item-texto">${item.texto}</div>
+                            <div class="item-valor">${item.valor || '0'}</div>
+                        </div>
+                        `).join('') || ''}
+                    </div>
+                    
+                    ${dados?.anexos?.length > 0 ? `
+                    <div class="anexos-container">
+                        ${dados.anexos.map(anexo => `
+                        <div class="anexo-item">
+                            <div class="anexo-nome">${anexo.nome}</div>
+                        </div>
+                        `).join('')}
+                    </div>` : ''}
+                </div>
+            `;
+            
+            dashboard.appendChild(quadro);
+            
+            // Configura gráfico (somente visualização)
+            if (dados?.legenda) {
+                const ctx = document.getElementById(`grafico${quadroId}`).getContext('2d');
+                new Chart(ctx, {
+                    type: 'doughnut',
+                    data: {
+                        labels: dados.legenda.labels,
+                        datasets: [{
+                            data: dados.legenda.dados,
+                            backgroundColor: coresGrafico,
+                            borderWidth: 0
+                        }]
+                    },
+                    options: {
+                        cutout: '75%',
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: { legend: false, tooltip: false }
+                    }
+                });
+            }
+        }
+        
+        // Atualiza o gráfico de um quadro
+        function atualizarGrafico(quadroId) {
+            const quadro = document.querySelector(`.quadro[data-id="${quadroId}"]`);
+            if (!quadro) return;
+            
+            const inputs = quadro.querySelectorAll('.item-numero');
+            const textos = quadro.querySelectorAll('.item-texto');
+            
+            const dados = [];
+            const labels = [];
+            
+            inputs.forEach((input, index) => {
+                const valor = parseInt(input.value) || 0;
+                const texto = textos[index].textContent.trim() || `Item ${index + 1}`;
+                
+                if (valor > 0) {
+                    dados.push(valor);
+                    labels.push(texto);
+                }
+            });
+            
+            // Atualiza o gráfico
+            graficos[quadroId].data.labels = labels;
+            graficos[quadroId].data.datasets[0].data = dados;
+            graficos[quadroId].update();
+            
+            // Atualiza a legenda
+            const legendaContainer = document.getElementById(`legenda${quadroId}`);
+            if (dados.length > 0) {
+                let legendaHTML = '<div style="display: flex; flex-wrap: wrap; justify-content: center; gap: 8px;">';
+                
+                labels.forEach((label, i) => {
+                    legendaHTML += `
+                        <div style="display: flex; align-items: center; gap: 4px;">
+                            <div style="width: 12px; height: 12px; background-color: ${coresGrafico[i]}; border-radius: 2px;"></div>
+                            <span style="font-size: 0.7rem;">${label}: ${dados[i]}</span>
+                        </div>
+                    `;
+                });
+                
+                legendaHTML += '</div>';
+                legendaContainer.innerHTML = legendaHTML;
+            } else {
+                legendaContainer.innerHTML = '<div style="color:#999; text-align:center; font-size: 0.8rem;">Edite os campos para atualizar o gráfico</div>';
+            }
+            
+            // Salva os dados
+            saveQuadroData(quadroId);
+        }
+        
+        // Salva os dados de um quadro específico
+        function saveQuadroData(quadroId) {
+            const isColaborador = currentColaborador !== null;
+            
+            if (!currentEspecialidade && !currentColaborador) return;
+            
+            const quadro = document.querySelector(`.quadro[data-id="${quadroId}"]`);
+            if (!quadro) return;
+            
+            // Cria a estrutura de dados se não existir
+            if (currentEspecialidade) {
+                if (!dadosEspecialidades[currentEspecialidade.id].quadros[quadroId]) {
+                    dadosEspecialidades[currentEspecialidade.id].quadros[quadroId] = {
+                        nome: '',
+                        crm: '',
+                        itens: [],
+                        anexos: []
+                    };
+                }
+            } else if (currentColaborador) {
+                if (!dadosColaboradores[currentColaborador.id].quadros[quadroId]) {
+                    dadosColaboradores[currentColaborador.id].quadros[quadroId] = {
+                        nome: '',
+                        crm: '',
+                        itens: [],
+                        anexos: []
+                    };
+                }
+            }
+            
+            // Salva os dados básicos
+            if (currentEspecialidade) {
+                dadosEspecialidades[currentEspecialidade.id].quadros[quadroId].nome = quadro.querySelector('.nome-medico').textContent;
+                dadosEspecialidades[currentEspecialidade.id].quadros[quadroId].crm = quadro.querySelector('.crm').textContent;
+            } else if (currentColaborador) {
+                dadosColaboradores[currentColaborador.id].quadros[quadroId].nome = quadro.querySelector('.nome-medico').textContent;
+                dadosColaboradores[currentColaborador.id].quadros[quadroId].crm = quadro.querySelector('.crm').textContent;
+            }
+            
+            // Salva os itens
+            const inputs = quadro.querySelectorAll('.item-numero');
+            const textos = quadro.querySelectorAll('.item-texto');
+            const valorItems = quadro.querySelectorAll('.valor-item');
+            
+            if (currentEspecialidade) {
+                dadosEspecialidades[currentEspecialidade.id].quadros[quadroId].itens = [];
+            } else if (currentColaborador) {
+                dadosColaboradores[currentColaborador.id].quadros[quadroId].itens = [];
+            }
+            
+            inputs.forEach((input, index) => {
+                const itemData = {
+                    texto: textos[index].textContent.trim(),
+                    valor: parseInt(input.value) || 0,
+                    valorItem: parseInt(valorItems[index].value) || 0
+                };
+                
+                if (currentEspecialidade) {
+                    dadosEspecialidades[currentEspecialidade.id].quadros[quadroId].itens.push(itemData);
+                } else if (currentColaborador) {
+                    dadosColaboradores[currentColaborador.id].quadros[quadroId].itens.push(itemData);
+                }
+            });
+            
+            // Salva a legenda do gráfico
+            if (graficos[quadroId]) {
+                const legendaData = {
+                    labels: graficos[quadroId].data.labels,
+                    dados: graficos[quadroId].data.datasets[0].data
+                };
+                
+                if (currentEspecialidade) {
+                    dadosEspecialidades[currentEspecialidade.id].quadros[quadroId].legenda = legendaData;
+                } else if (currentColaborador) {
+                    dadosColaboradores[currentColaborador.id].quadros[quadroId].legenda = legendaData;
+                }
+            }
+            
+            // Mantém os dados existentes (foto, anexos, data)
+            if (currentEspecialidade && dadosEspecialidades[currentEspecialidade.id].quadros[quadroId].foto) {
+                dadosEspecialidades[currentEspecialidade.id].quadros[quadroId].foto = 
+                    dadosEspecialidades[currentEspecialidade.id].quadros[quadroId].foto;
+            }
+            
+            if (currentEspecialidade && dadosEspecialidades[currentEspecialidade.id].quadros[quadroId].anexos) {
+                dadosEspecialidades[currentEspecialidade.id].quadros[quadroId].anexos = 
+                    dadosEspecialidades[currentEspecialidade.id].quadros[quadroId].anexos;
+            }
+            
+            if (currentEspecialidade && dadosEspecialidades[currentEspecialidade.id].quadros[quadroId].data) {
+                dadosEspecialidades[currentEspecialidade.id].quadros[quadroId].data = 
+                    dadosEspecialidades[currentEspecialidade.id].quadros[quadroId].data;
+            }
+            
+            if (currentColaborador && dadosColaboradores[currentColaborador.id].quadros[quadroId].foto) {
+                dadosColaboradores[currentColaborador.id].quadros[quadroId].foto = 
+                    dadosColaboradores[currentColaborador.id].quadros[quadroId].foto;
+            }
+            
+            if (currentColaborador && dadosColaboradores[currentColaborador.id].quadros[quadroId].anexos) {
+                dadosColaboradores[currentColaborador.id].quadros[quadroId].anexos = 
+                    dadosColaboradores[currentColaborador.id].quadros[quadroId].anexos;
+            }
+            
+            if (currentColaborador && dadosColaboradores[currentColaborador.id].quadros[quadroId].data) {
+                dadosColaboradores[currentColaborador.id].quadros[quadroId].data = 
+                    dadosColaboradores[currentColaborador.id].quadros[quadroId].data;
+            }
+            
+            // Salva no armazenamento geral
+            saveData();
+        }
+        
+        // Salva todos os dados no localStorage
+        function saveData() {
+            if (!verifyAction('edit', () => {})) return;
+            
+            try {
+                if (currentEspecialidade) {
+                    dadosEspecialidades[currentEspecialidade.id].nextQuadroId = quadroCount + 1;
+                    localStorage.setItem(
+                        `dashboard_${currentEspecialidade.id}`, 
+                        JSON.stringify({
+                            ...dadosEspecialidades[currentEspecialidade.id],
+                            filters: {
+                                currentFilter,
+                                currentMonthFilter,
+                                currentYearFilter
+                            }
+                        })
+                    );
+                } else if (currentColaborador) {
+                    dadosColaboradores[currentColaborador.id].nextQuadroId = quadroCount + 1;
+                    localStorage.setItem(
+                        `dashboard_colaborador_${currentColaborador.id}`, 
+                        JSON.stringify({
+                            ...dadosColaboradores[currentColaborador.id],
+                            filters: {
+                                currentFilter,
+                                currentMonthFilter,
+                                currentYearFilter
+                            }
+                        })
+                    );
+                }
+                
+                // Salva listas de especialidades e colaboradores
+                localStorage.setItem('especialidades', JSON.stringify(especialidades));
+                localStorage.setItem('colaboradores', JSON.stringify(colaboradores));
+                
+                // Atualiza o ranking se necessário
+                updateRankingIfNeeded();
+                
+                return true;
+            } catch (error) {
+                console.error("Erro ao salvar dados:", error);
+                showCustomMessage("Ocorreu um erro ao salvar os dados. Por favor, tente novamente.");
+                return false;
+            }
+        }
+        
+        // Função para carregar filtros salvos
+        function loadSavedFilters() {
+            try {
+                let savedData;
+                if (currentEspecialidade) {
+                    savedData = localStorage.getItem(`dashboard_${currentEspecialidade.id}`);
+                } else if (currentColaborador) {
+                    savedData = localStorage.getItem(`dashboard_colaborador_${currentColaborador.id}`);
+                }
+                
+                if (savedData) {
+                    const { filters } = JSON.parse(savedData);
+                    if (filters) {
+                        currentFilter = filters.currentFilter || 'padrao';
+                        currentMonthFilter = filters.currentMonthFilter || 0;
+                        currentYearFilter = filters.currentYearFilter || 0;
+                        
+                        // Atualiza UI dos filtros
+                        document.querySelectorAll('.filter-btn').forEach(btn => btn.classList.remove('active'));
+                        document.getElementById(`filter${currentFilter.charAt(0).toUpperCase() + currentFilter.slice(1)}`)?.classList.add('active');
+                        
+                        filterMonth.value = currentMonthFilter;
+                        filterYear.value = currentYearFilter;
+                    }
+                }
+            } catch (error) {
+                console.error("Erro ao carregar filtros:", error);
+            }
+        }
+        
+        // Função para calcular pontuação
+        function calcularPontuacao(quadroId) {
+            const quadro = document.querySelector(`.quadro[data-id="${quadroId}"]`);
+            if (!quadro) return;
+
+            const valores = quadro.querySelectorAll('.valor-item');
+            const quantidades = quadro.querySelectorAll('.item-numero');
+            
+            let pontuacaoTotal = 0;
+            
+            valores.forEach((valorInput, index) => {
+                const valor = parseInt(valorInput.value) || 0;
+                const quantidade = parseInt(quantidades[index].value) || 0;
+                pontuacaoTotal += valor * quantidade;
+            });
+            
+            // Atualiza a exibição da pontuação
+            const pontuacaoElement = document.getElementById(`pontuacao${quadroId}`);
+            if (pontuacaoElement) {
+                pontuacaoElement.innerHTML = `<div>${pontuacaoTotal}</div><div class="pontuacao-label">pontos</div>`;
+            }
+            
+            // Salva a pontuação nos dados
+            if (currentEspecialidade) {
+                if (dadosEspecialidades[currentEspecialidade.id].quadros[quadroId]) {
+                    dadosEspecialidades[currentEspecialidade.id].quadros[quadroId].pontuacao = pontuacaoTotal;
+                }
+            } else if (currentColaborador) {
+                if (dadosColaboradores[currentColaborador.id].quadros[quadroId]) {
+                    dadosColaboradores[currentColaborador.id].quadros[quadroId].pontuacao = pontuacaoTotal;
+                }
+            }
+            
+            // Marca que o ranking precisa ser atualizado
+            needsRankingUpdate = true;
+            saveData();
+        }
+
+        // Função para atualizar ranking
+        function atualizarRanking() {
+            let quadrosArray = [];
+            
+            if (currentEspecialidade) {
+                quadrosArray = Object.entries(dadosEspecialidades[currentEspecialidade.id].quadros)
+                    .map(([id, data]) => ({ id, pontuacao: data.pontuacao || 0 }));
+            } else if (currentColaborador) {
+                quadrosArray = Object.entries(dadosColaboradores[currentColaborador.id].quadros)
+                    .map(([id, data]) => ({ id, pontuacao: data.pontuacao || 0 }));
+            }
+            
+            // Ordena por pontuação (decrescente)
+            quadrosArray.sort((a, b) => b.pontuacao - a.pontuacao);
+            
+            // Atualiza o ranking nos dados e na interface
+            quadrosArray.forEach((quadro, index) => {
+                const ranking = index + 1;
+                const rankingElement = document.getElementById(`ranking${quadro.id}`);
+                
+                if (rankingElement) {
+                    rankingElement.textContent = ranking;
+                }
+                
+                // Salva o ranking nos dados
+                if (currentEspecialidade && dadosEspecialidades[currentEspecialidade.id].quadros[quadro.id]) {
+                    dadosEspecialidades[currentEspecialidade.id].quadros[quadro.id].ranking = ranking;
+                } else if (currentColaborador && dadosColaboradores[currentColaborador.id].quadros[quadro.id]) {
+                    dadosColaboradores[currentColaborador.id].quadros[quadro.id].ranking = ranking;
+                }
+            });
+            
+            needsRankingUpdate = false;
+        }
+        
+        function updateRankingIfNeeded() {
+            if (needsRankingUpdate) {
+                atualizarRanking();
+            }
+        }
+        
+        // Abre o modal para editar/adicionar especialidade
+        function openEditEspecialidadeModal(especialidadeId = null) {
+            editingEspecialidadeId = especialidadeId;
+            
+            if (especialidadeId) {
+                // Modo edição
+                modalTitle.textContent = 'Editar Especialidade';
+                const especialidade = especialidades.find(esp => esp.id === especialidadeId);
+                if (especialidade) {
+                    especialidadeNome.value = especialidade.nome;
+                }
+            } else {
+                // Modo adição
+                modalTitle.textContent = 'Adicionar Especialidade';
+                especialidadeNome.value = '';
+            }
+            
+            especialidadeModal.style.display = 'flex';
+            especialidadeNome.focus();
+        }
+        
+        // Abre o modal para editar/adicionar colaborador
+        function openEditColaboradorModal(colaboradorId = null) {
+            editingColaboradorId = colaboradorId;
+            
+            if (colaboradorId) {
+                // Modo edição
+                modalColaboradorTitle.textContent = 'Editar Colaborador';
+                const colaborador = colaboradores.find(col => col.id === colaboradorId);
+                if (colaborador) {
+                    colaboradorNome.value = colaborador.nome;
+                }
+            } else {
+                // Modo adição
+                modalColaboradorTitle.textContent = 'Adicionar Colaborador';
+                colaboradorNome.value = '';
+            }
+            
+            colaboradorModal.style.display = 'flex';
+            colaboradorNome.focus();
+        }
+        
+        // Fecha o modal de especialidade
+        function closeEditEspecialidadeModal() {
+            especialidadeModal.style.display = 'none';
+            editingEspecialidadeId = null;
+        }
+        
+        // Fecha o modal de colaborador
+        function closeEditColaboradorModal() {
+            colaboradorModal.style.display = 'none';
+            editingColaboradorId = null;
+        }
+        
+        // Salva a especialidade (nova ou editada)
+        function saveEspecialidadeData() {
+            if (!verifyAction('edit', () => {})) return;
+            
+            const nome = especialidadeNome.value.trim();
+            
+            if (!nome) {
+                showCustomMessage('Por favor, insira um nome para a especialidade');
+                return;
+            }
+            
+            if (editingEspecialidadeId) {
+                // Editar existente
+                const index = especialidades.findIndex(esp => esp.id === editingEspecialidadeId);
+                if (index !== -1) {
+                    especialidades[index].nome = nome;
+                }
+            } else {
+                // Adicionar nova
+                const id = nome.toLowerCase().replace(/\s+/g, '-');
+                especialidades.push({ id, nome });
+            }
+            
+            // Salva no localStorage
+            localStorage.setItem('especialidades', JSON.stringify(especialidades));
+            
+            // Atualiza a interface
+            initMenu();
+            closeEditEspecialidadeModal();
+        }
+        
+        // Salva o colaborador (novo ou editado)
+        function saveColaboradorData() {
+            if (!verifyAction('edit', () => {})) return;
+            
+            const nome = colaboradorNome.value.trim();
+            
+            if (!nome) {
+                showCustomMessage('Por favor, insira um nome para o colaborador');
+                return;
+            }
+            
+            if (editingColaboradorId) {
+                // Editar existente
+                const index = colaboradores.findIndex(col => col.id === editingColaboradorId);
+                if (index !== -1) {
+                    colaboradores[index].nome = nome;
+                }
+            } else {
+                // Adicionar novo
+                const id = nome.toLowerCase().replace(/\s+/g, '-');
+                colaboradores.push({ id, nome });
+            }
+            
+            // Salva no localStorage
+            localStorage.setItem('colaboradores', JSON.stringify(colaboradores));
+            
+            // Atualiza a interface
+            initColaboradores();
+            closeEditColaboradorModal();
+        }
+        
+        // Exclui uma especialidade
+        function deleteEspecialidade(especialidadeId) {
+            if (!verifyAction('edit', () => {})) return;
+            
+            especialidades = especialidades.filter(esp => esp.id !== especialidadeId);
+            
+            // Remove do localStorage
+            localStorage.setItem('especialidades', JSON.stringify(especialidades));
+            
+            // Remove os dados do dashboard
+            localStorage.removeItem(`dashboard_${especialidadeId}`);
+            
+            // Atualiza a interface
+            initMenu();
+        }
+        
+        // Exclui um colaborador
+        function deleteColaborador(colaboradorId) {
+            if (!verifyAction('edit', () => {})) return;
+            
+            colaboradores = colaboradores.filter(col => col.id !== colaboradorId);
+            
+            // Remove do localStorage
+            localStorage.setItem('colaboradores', JSON.stringify(colaboradores));
+            
+            // Remove os dados do dashboard
+            localStorage.removeItem(`dashboard_colaborador_${colaboradorId}`);
+            
+            // Atualiza a interface
+            initColaboradores();
+        }
+        
+        // Função para abrir modal de anexo
+        function openAnexoModal(quadroId) {
+            currentQuadroIdForAnexo = quadroId;
+            anexoNome.value = '';
+            anexoArquivo.value = '';
+            anexoModal.style.display = 'flex';
+        }
+        
+        // Função para salvar anexo
+        function saveAnexoFile() {
+            if (!verifyAction('edit', () => {})) return;
+            
+            const nome = anexoNome.value.trim();
+            const file = anexoArquivo.files[0];
+            
+            if (!nome || !file) {
+                showCustomMessage('Por favor, preencha todos os campos');
+                return;
+            }
+            
+            // Simulando o upload - em uma aplicação real, aqui seria o upload para um servidor
+            const anexoUrl = URL.createObjectURL(file);
+            
+            // Adiciona o anexo ao quadro
+            if (currentEspecialidade) {
+                if (!dadosEspecialidades[currentEspecialidade.id].quadros[currentQuadroIdForAnexo].anexos) {
+                    dadosEspecialidades[currentEspecialidade.id].quadros[currentQuadroIdForAnexo].anexos = [];
+                }
+                
+                dadosEspecialidades[currentEspecialidade.id].quadros[currentQuadroIdForAnexo].anexos.push({
+                    nome: nome,
+                    url: anexoUrl
+                });
+            } else if (currentColaborador) {
+                if (!dadosColaboradores[currentColaborador.id].quadros[currentQuadroIdForAnexo].anexos) {
+                    dadosColaboradores[currentColaborador.id].quadros[currentQuadroIdForAnexo].anexos = [];
+                }
+                
+                dadosColaboradores[currentColaborador.id].quadros[currentQuadroIdForAnexo].anexos.push({
+                    nome: nome,
+                    url: anexoUrl
+                });
+            }
+            
+            // Atualiza a interface
+            updateAnexosList(currentQuadroIdForAnexo);
+            saveData();
+            anexoModal.style.display = 'none';
+        }
+        
+        // Função para atualizar lista de anexos
+        function updateAnexosList(quadroId) {
+            const anexosContainer = document.getElementById(`anexos${quadroId}`);
+            
+            let quadroData;
+            if (currentEspecialidade) {
+                quadroData = dadosEspecialidades[currentEspecialidade.id].quadros[quadroId];
+            } else if (currentColaborador) {
+                quadroData = dadosColaboradores[currentColaborador.id].quadros[quadroId];
+            } else {
+                return;
+            }
+            
+            anexosContainer.innerHTML = '';
+            
+            if (quadroData.anexos && quadroData.anexos.length > 0) {
+                quadroData.anexos.forEach(anexo => {
+                    const anexoItem = document.createElement('div');
+                    anexoItem.className = 'anexo-item';
+                    anexoItem.setAttribute('data-nome', anexo.nome);
+                    anexoItem.innerHTML = `
+                        <div class="anexo-nome">${anexo.nome}</div>
+                        <button class="download-anexo" data-url="${anexo.url}">
+                            <i class="fas fa-download"></i>
+                        </button>
+                    `;
+                    anexosContainer.appendChild(anexoItem);
+                    
+                    // Adiciona evento de download
+                    anexoItem.querySelector('.download-anexo').addEventListener('click', (e) => {
+                        e.preventDefault();
+                        const link = document.createElement('a');
+                        link.href = anexo.url;
+                        link.download = anexo.nome;
+                        link.click();
+                    });
+                });
+            }
+        }
+        
+        // Função para abrir modal de foto
+        function openFotoModal(quadroId) {
+            currentQuadroIdForFoto = quadroId;
+            fotoArquivo.value = '';
+            fotoPreview.innerHTML = '<div class="foto-placeholder"><i class="fas fa-user-md" style="font-size: 2rem; color: #7f8c8d;"></i></div>';
+            fotoModal.style.display = 'flex';
+        }
+        
+        // Função para salvar foto
+        function saveFotoFile() {
+            if (!verifyAction('edit', () => {})) return;
+            
+            const file = fotoArquivo.files[0];
+            
+            if (!file) {
+                showCustomMessage('Por favor, selecione uma imagem');
+                return;
+            }
+            
+            const reader = new FileReader();
+            reader.onload = function(event) {
+                // Salva a foto no quadro
+                if (currentEspecialidade) {
+                    dadosEspecialidades[currentEspecialidade.id].quadros[currentQuadroIdForFoto].foto = event.target.result;
+                } else if (currentColaborador) {
+                    dadosColaboradores[currentColaborador.id].quadros[currentQuadroIdForFoto].foto = event.target.result;
+                }
+                
+                // Atualiza a foto na interface
+                const fotoElement = document.querySelector(`.quadro[data-id="${currentQuadroIdForFoto}"] .foto-medico`);
+                fotoElement.innerHTML = `<img src="${event.target.result}" style="width: 100%; height: 100%; object-fit: cover;">`;
+                
+                saveData();
+                fotoModal.style.display = 'none';
+            };
+            reader.readAsDataURL(file);
+        }
+        
+        // Função para abrir modal de data
+        function openDataModal(quadroId) {
+            currentQuadroIdForData = quadroId;
+            
+            let quadroData;
+            if (currentEspecialidade) {
+                quadroData = dadosEspecialidades[currentEspecialidade.id].quadros[quadroId];
+            } else if (currentColaborador) {
+                quadroData = dadosColaboradores[currentColaborador.id].quadros[quadroId];
+            }
+            
+            const hoje = new Date();
+            quadroMonth.value = quadroData?.data?.mes || hoje.getMonth() + 1;
+            quadroYear.value = quadroData?.data?.ano || hoje.getFullYear();
+            
+            dataModal.style.display = 'flex';
+        }
+        
+        // Função para salvar período
+        function saveDataPeriod() {
+            if (!verifyAction('edit', () => {})) return;
+            
+            const mes = parseInt(quadroMonth.value);
+            const ano = parseInt(quadroYear.value);
+            
+            if (!ano || ano < 2000 || ano > 2100) {
+                showCustomMessage('Por favor, insira um ano válido');
+                return;
+            }
+            
+            if (currentEspecialidade) {
+                if (!dadosEspecialidades[currentEspecialidade.id].quadros[currentQuadroIdForData].data) {
+                    dadosEspecialidades[currentEspecialidade.id].quadros[currentQuadroIdForData].data = {};
+                }
+                dadosEspecialidades[currentEspecialidade.id].quadros[currentQuadroIdForData].data.mes = mes;
+                dadosEspecialidades[currentEspecialidade.id].quadros[currentQuadroIdForData].data.ano = ano;
+            } else if (currentColaborador) {
+                if (!dadosColaboradores[currentColaborador.id].quadros[currentQuadroIdForData].data) {
+                    dadosColaboradores[currentColaborador.id].quadros[currentQuadroIdForData].data = {};
+                }
+                dadosColaboradores[currentColaborador.id].quadros[currentQuadroIdForData].data.mes = mes;
+                dadosColaboradores[currentColaborador.id].quadros[currentQuadroIdForData].data.ano = ano;
+            }
+            
+            saveData();
+            dataModal.style.display = 'none';
+            
+            // Recarrega os quadros para aplicar os filtros
+            loadQuadros();
+        }
+        
+        // Volta para o menu
+        function backToMenu() {
+            // Salva os dados antes de sair
+            saveData();
+            
+            // Limpa o dashboard
+            dashboard.innerHTML = '';
+            
+            // Reseta os filtros
+            currentMonthFilter = 0;
+            currentYearFilter = 0;
+            filterMonth.value = '0';
+            filterYear.value = '0';
+            
+            // Mostra o menu apropriado
+            if (currentEspecialidade) {
+                menuScreen.style.display = 'flex';
+            } else if (currentColaborador) {
+                colaboradoresScreen.style.display = 'flex';
+            }
+            
+            dashboardScreen.style.display = 'none';
+            currentEspecialidade = null;
+            currentColaborador = null;
+        }
+        
+        // Função para gerar PDF (simulada)
+        function generatePDF() {
+            showCustomMessage('Relatório PDF seria gerado aqui com todos os dados dos médicos/colaboradores.\nEm uma implementação real, usaria uma biblioteca como jsPDF para criar o documento.');
+        }
+
+        // =============================================
+        // FUNÇÕES DO PANORAMA GERAL
+        // =============================================
+
+        // Função para coletar dados dos pontos fortes (APENAS PARA MÉDICOS)
+        function getStrongestPointsData(monthFilter = 0) {
+            const strongestPoints = {}; // { 'Consulta': { count: 10, doctors: ['Dr. A', 'Dr. B'] }, ... }
+
+            // Processar APENAS Especialidades (Médicos)
+            especialidades.forEach(esp => {
+                const savedData = localStorage.getItem(`dashboard_${esp.id}`);
+                if (savedData) {
+                    const dados = JSON.parse(savedData);
+                    for (const quadroId in dados.quadros) {
+                        const quadro = dados.quadros[quadroId];
+                        
+                        // Aplica filtro de mês
+                        if (monthFilter !== 0 && (quadro.data?.mes !== monthFilter || !quadro.data)) {
+                            continue; // Pula este quadro se não corresponder ao filtro de mês
+                        }
+
+                        const doctorName = quadro.nome || `Médico #${quadroId}`; // Obter o nome do médico
+                        
+                        if (quadro.itens && quadro.itens.length > 0) {
+                            let maxValor = -1;
+                            let strongestItemText = '';
+
+                            quadro.itens.forEach(item => {
+                                if (item.valor > maxValor) {
+                                    maxValor = item.valor;
+                                    strongestItemText = item.texto.trim();
+                                }
+                            });
+
+                            if (strongestItemText) {
+                                if (!strongestPoints[strongestItemText]) {
+                                    strongestPoints[strongestItemText] = { count: 0, doctors: [] };
+                                }
+                                strongestPoints[strongestItemText].count++;
+                                strongestPoints[strongestItemText].doctors.push(doctorName);
+                            }
+                        }
+                    }
+                }
+            });
+
+            // Converter para formato amigável do Chart.js
+            const labels = Object.keys(strongestPoints);
+            const data = labels.map(label => strongestPoints[label].count);
+            const doctorNames = labels.map(label => strongestPoints[label].doctors);
+
+            // Ordenar por frequência (descrescente)
+            const sortedData = labels.map((label, index) => ({ 
+                label, 
+                value: data[index], 
+                doctors: doctorNames[index] 
+            })).sort((a, b) => b.value - a.value);
+
+            return {
+                labels: sortedData.map(item => item.label),
+                data: sortedData.map(item => item.value),
+                doctorNames: sortedData.map(item => item.doctors) // Retorna os nomes dos médicos associados
+            };
+        }
+
+        // Nova função para coletar dados de desempenho por especialidade
+        function getEspecialidadesPerformanceData(monthFilter = 0) {
+            const especialidadesData = [];
+            
+            especialidades.forEach((esp, index) => {
+                const savedData = localStorage.getItem(`dashboard_${esp.id}`);
+                if (savedData) {
+                    const dados = JSON.parse(savedData);
+                    let totalPontuacao = 0;
+                    let totalMedicos = 0;
+                    
+                    for (const quadroId in dados.quadros) {
+                        const quadro = dados.quadros[quadroId];
+
+                        // Aplica filtro de mês
+                        if (monthFilter !== 0 && (quadro.data?.mes !== monthFilter || !quadro.data)) {
+                            continue; // Pula este quadro se não corresponder ao filtro de mês
+                        }
+
+                        if (quadro.pontuacao) {
+                            totalPontuacao += quadro.pontuacao;
+                            totalMedicos++;
+                        }
+                    }
+                    
+                    if (totalMedicos > 0) {
+                        especialidadesData.push({
+                            nome: esp.nome,
+                            media: totalPontuacao / totalMedicos,
+                            total: totalPontuacao
+                        });
+                    }
+                }
+            });
+            return especialidadesData;
+        }
+
+        // Nova função para coletar dados de atividades por tipo
+        function getAtividadesData(monthFilter = 0) {
+            const atividadesData = {};
+            
+            // Coletar dados de todas as especialidades
+            especialidades.forEach(esp => {
+                const savedData = localStorage.getItem(`dashboard_${esp.id}`);
+                if (savedData) {
+                    const dados = JSON.parse(savedData);
+                    
+                    for (const quadroId in dados.quadros) {
+                        const quadro = dados.quadros[quadroId];
+
+                        // Aplica filtro de mês
+                        if (monthFilter !== 0 && (quadro.data?.mes !== monthFilter || !quadro.data)) {
+                            continue; // Pula este quadro se não corresponder ao filtro de mês
+                        }
+
+                        if (quadro.itens) {
+                            quadro.itens.forEach(item => {
+                                if (item.texto && item.valor) {
+                                    const atividade = item.texto.trim();
+                                    atividadesData[atividade] = (atividadesData[atividade] || 0) + item.valor;
+                                }
+                            });
+                        }
+                    }
+                }
+            });
+            return atividadesData;
+        }
+
+
+        function openPanoramaGeral() {
+            // Coletar todos os dados
+            currentEspecialidade = null;
+            currentColaborador = null;
+
+            panoramaData = {
+                especialidades: {},
+                colaboradores: {}
+            };
+            
+            // Coletar dados das especialidades
+            especialidades.forEach(esp => {
+                const savedData = localStorage.getItem(`dashboard_${esp.id}`);
+                if (savedData) {
+                    panoramaData.especialidades[esp.id] = {
+                        nome: esp.nome,
+                        dados: JSON.parse(savedData)
+                    };
+                }
+            });
+            
+            // Coletar dados dos colaboradores
+            colaboradores.forEach(col => {
+                const savedData = localStorage.getItem(`dashboard_colaborador_${col.id}`);
+                if (savedData) {
+                    panoramaData.colaboradores[col.id] = {
+                        nome: col.nome,
+                        dados: JSON.parse(savedData)
+                    };
+                }
+            });
+            panoramaCurrentMonthFilter = 0; // Resetar o filtro de mês do panorama ao abrir
+            loadPanoramaCharts(); // Carregar os gráficos inicialmente sem filtro de mês
+            
+            mainMenuScreen.style.display = 'none';
+            menuScreen.style.display = 'none';
+            colaboradoresScreen.style.display = 'none';
+            dashboardScreen.style.display = 'none';
+            panoramaScreen.style.display = 'flex';
+        }
+
+        function backFromPanorama() {
+            panoramaScreen.style.display = 'none';
+            if (currentEspecialidade) {
+                menuScreen.style.display = 'flex';
+            } else if (currentColaborador) {
+                colaboradoresScreen.style.display = 'flex';
+            } else {
+                // Se veio do menu principal, volta para ele
+                mainMenuScreen.style.display = 'flex';
+            }
+        }
+
+        function loadPanoramaCharts() {
+            panoramaDashboard.innerHTML = '';
+            
+            // 1. Gráfico de Desempenho por Especialidade
+            const especialidadesPerformanceData = getEspecialidadesPerformanceData(panoramaCurrentMonthFilter);
+            const especialidadesColors = especialidadesPerformanceData.map((_, index) => coresGrafico[index % coresGrafico.length]);
+
+            if (especialidadesPerformanceData.length > 0) {
+                const card1 = createChartCard('Desempenho por Especialidade', 'bar', 'performance-chart', true); // Adiciona filtro
+                panoramaDashboard.appendChild(card1);
+                
+                const ctx1 = card1.querySelector('canvas').getContext('2d');
+                panoramaCharts['performance-chart'] = new Chart(ctx1, { // Armazena a instância do gráfico
+                    type: 'bar',
+                    data: {
+                        labels: especialidadesPerformanceData.map(esp => esp.nome),
+                        datasets: [{
+                            label: 'Média de Pontos',
+                            data: especialidadesPerformanceData.map(esp => esp.media),
+                            backgroundColor: especialidadesColors,
+                            borderWidth: 0
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: {
+                            legend: { display: false },
+                            tooltip: { 
+                                callbacks: { 
+                                    afterLabel: (context) => {
+                                        const data = especialidadesPerformanceData[context.dataIndex];
+                                        return [
+                                            `Total de pontos: ${data.total}`,
+                                            `Média: ${data.media.toFixed(1)}`
+                                        ];
+                                    }
+                                } 
+                            }
+                        },
+                        scales: {
+                            y: { 
+                                beginAtZero: true,
+                                title: { 
+                                    display: true, 
+                                    text: 'Pontuação Média' 
+                                }
+                            }
+                        }
+                    }
+                });
+            }
+            
+            // 2. Gráfico de Distribuição de Atividades
+            const atividadesData = getAtividadesData(panoramaCurrentMonthFilter);
+            const sortedAtividades = Object.entries(atividadesData)
+                .sort((a, b) => b[1] - a[1])
+                .slice(0, 8); // Limitar a 8 atividades mais comuns
+            
+            if (Object.keys(atividadesData).length > 0) {
+                const card2 = createChartCard('Distribuição de Atividades', 'pie', 'activities-chart', true); // Adiciona filtro
+                panoramaDashboard.appendChild(card2);
+                
+                const ctx2 = card2.querySelector('canvas').getContext('2d');
+                panoramaCharts['activities-chart'] = new Chart(ctx2, { // Armazena a instância do gráfico
+                    type: 'pie',
+                    data: {
+                        labels: sortedAtividades.map(a => a[0]),
+                        datasets: [{
+                            data: sortedAtividades.map(a => a[1]),
+                            backgroundColor: coresGrafico,
+                            borderWidth: 0
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        plugins: {
+                            legend: { position: 'right' },
+                            tooltip: { 
+                                callbacks: {
+                                    label: ctx => `${ctx.label}: ${ctx.raw} atividades`
+                                }
+                            }
+                        }
+                    }
+                });
+            }
+            
+            // 3. Gráfico de Evolução Mensal (NÃO TEM FILTRO DE MÊS)
+            const meses = ['Jan', 'Fev', 'Mar', 'Abr', 'Mai', 'Jun', 'Jul', 'Ago', 'Set', 'Out', 'Nov', 'Dez'];
+            const evolucaoData = Array(12).fill(0);
+            
+            // Coletar dados mensais
+            especialidades.forEach(esp => {
+                const savedData = localStorage.getItem(`dashboard_${esp.id}`);
+                if (savedData) {
+                    const dados = JSON.parse(savedData);
+                    
+                    for (const quadroId in dados.quadros) {
+                        const quadro = dados.quadros[quadroId];
+                        if (quadro.data && quadro.pontuacao) {
+                            const mes = quadro.data.mes - 1; // 0-11
+                            if (mes >= 0 && mes < 12) {
+                                evolucaoData[mes] += quadro.pontuacao;
+                            }
+                        }
+                    }
+                }
+            });
+            
+            const card3 = createChartCard('Evolução Mensal', 'line', 'monthly-evolution-chart', false); // Não adiciona filtro
+            panoramaDashboard.appendChild(card3);
+            
+            const ctx3 = card3.querySelector('canvas').getContext('2d');
+            panoramaCharts['monthly-evolution-chart'] = new Chart(ctx3, { // Armazena a instância do gráfico
+                type: 'line',
+                data: {
+                    labels: meses,
+                    datasets: [{
+                        label: 'Total de Pontos',
+                        data: evolucaoData,
+                        borderColor: '#3498db',
+                        backgroundColor: 'rgba(52, 152, 219, 0.1)',
+                        fill: true,
+                        tension: 0.3
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    plugins: {
+                        legend: { position: 'top' }
+                    },
+                    scales: {
+                        y: { 
+                            beginAtZero: true,
+                            title: {
+                                display: true,
+                                text: 'Pontos Totais'
+                            }
+                        }
+                    }
+                }
+            });
+
+            // 4. Gráfico de Pontos Fortes dos Médicos
+            const strongestPointsData = getStrongestPointsData(panoramaCurrentMonthFilter);
+
+            if (strongestPointsData.labels.length > 0) {
+                const card4 = createChartCard('Pontos Fortes dos Médicos', 'bar', 'strong-points-chart', true); // Adiciona filtro
+                panoramaDashboard.appendChild(card4);
+
+                const ctx4 = card4.querySelector('canvas').getContext('2d');
+                panoramaCharts['strong-points-chart'] = new Chart(ctx4, { // Armazena a instância do gráfico
+                    type: 'bar', 
+                    data: {
+                        labels: strongestPointsData.labels,
+                        datasets: [{
+                            label: 'Número de Ocorrências', 
+                            data: strongestPointsData.data,
+                            backgroundColor: coresGrafico,
+                            borderWidth: 0
+                        }]
+                    },
+                    options: {
+                        indexAxis: 'y', 
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: {
+                            legend: { display: false },
+                            tooltip: {
+                                callbacks: {
+                                    label: function(context) {
+                                        let label = context.dataset.label || '';
+                                        if (label) {
+                                            label += ': ';
+                                        }
+                                        label += context.raw; // O número de ocorrências
+                                        return label;
+                                    },
+                                    afterLabel: function(context) {
+                                        // Acessa os nomes dos médicos do array `doctorNames` que foi passado para o dataset
+                                        const doctors = strongestPointsData.doctorNames[context.dataIndex];
+                                        if (doctors && doctors.length > 0) {
+                                            // Limita a exibição dos nomes para não sobrecarregar o tooltip
+                                            const displayDoctors = doctors.slice(0, 5); // Mostra os primeiros 5
+                                            let doctorList = 'Médicos: ' + displayDoctors.join(', ');
+                                            if (doctors.length > 5) {
+                                                doctorList += '...';
+                                            }
+                                            return doctorList;
+                                        }
+                                        return '';
+                                    }
+                                }
+                            }
+                        },
+                        scales: {
+                            x: {
+                                beginAtZero: true,
+                                title: {
+                                    display: true,
+                                    text: 'Número de Ocorrências'
+                                }
+                            },
+                            y: {
+                                // Escala de categoria para barras horizontais
+                            }
+                        }
+                    }
+                });
+            }
+
+            // Adiciona event listeners para os novos filtros de mês do panorama
+            document.querySelectorAll('.panorama-month-filter').forEach(select => {
+                select.removeEventListener('change', handlePanoramaMonthFilterChange); // Evita duplicidade
+                select.addEventListener('change', handlePanoramaMonthFilterChange);
+            });
+        }
+
+        // Função para criar o card do gráfico no panorama
+        function createChartCard(title, chartType, chartId, includeMonthFilter = false) {
+            const card = document.createElement('div');
+            card.className = 'quadro';
+            card.innerHTML = `
+                <div class="quadro-header">
+                    <div class="quadro-title">${title}</div>
+                    ${includeMonthFilter ? `
+                        <select class="panorama-month-filter" data-chart-id="${chartId}">
+                            <option value="0">Todos os meses</option>
+                            <option value="1">Janeiro</option>
+                            <option value="2">Fevereiro</option>
+                            <option value="3">Março</option>
+                            <option value="4">Abril</option>
+                            <option value="5">Maio</option>
+                            <option value="6">Junho</option>
+                            <option value="7">Julho</option>
+                            <option value="8">Agosto</option>
+                            <option value="9">Setembro</option>
+                            <option value="10">Outubro</option>
+                            <option value="11">Novembro</option>
+                            <option value="12">Dezembro</option>
+                        </select>
+                    ` : ''}
+                </div>
+                <div class="quadro-content">
+                    <div class="canvas-container">
+                        <canvas></canvas>
+                    </div>
+                </div>
+            `;
+            // Define o valor do filtro de mês se já houver um selecionado
+            const monthFilterSelect = card.querySelector(`.panorama-month-filter[data-chart-id="${chartId}"]`);
+            if (monthFilterSelect) {
+                monthFilterSelect.value = panoramaCurrentMonthFilter;
+            }
+            return card;
+        }
+
+        // Handler para a mudança do filtro de mês no panorama
+        function handlePanoramaMonthFilterChange(event) {
+            panoramaCurrentMonthFilter = parseInt(event.target.value);
+            // Atualiza todos os filtros de mês no panorama para o valor selecionado
+            document.querySelectorAll('.panorama-month-filter').forEach(select => {
+                select.value = panoramaCurrentMonthFilter;
+            });
+            updatePanoramaCharts(panoramaCurrentMonthFilter);
+        }
+
+        // Função para atualizar os gráficos do panorama com base no filtro de mês
+        function updatePanoramaCharts(monthFilter) {
+            // Atualiza o gráfico de Desempenho por Especialidade
+            if (panoramaCharts['performance-chart']) {
+                const especialidadesPerformanceData = getEspecialidadesPerformanceData(monthFilter);
+                const chart = panoramaCharts['performance-chart'];
+                chart.data.labels = especialidadesPerformanceData.map(esp => esp.nome);
+                chart.data.datasets[0].data = especialidadesPerformanceData.map(esp => esp.media);
+                chart.update();
+            }
+
+            // Atualiza o gráfico de Distribuição de Atividades
+            if (panoramaCharts['activities-chart']) {
+                const atividadesData = getAtividadesData(monthFilter);
+                const sortedAtividades = Object.entries(atividadesData)
+                    .sort((a, b) => b[1] - a[1])
+                    .slice(0, 8);
+                const chart = panoramaCharts['activities-chart'];
+                chart.data.labels = sortedAtividades.map(a => a[0]);
+                chart.data.datasets[0].data = sortedAtividades.map(a => a[1]);
+                chart.update();
+            }
+
+            // Atualiza o gráfico de Pontos Fortes dos Médicos
+            if (panoramaCharts['strong-points-chart']) {
+                const strongestPointsData = getStrongestPointsData(monthFilter);
+                const chart = panoramaCharts['strong-points-chart'];
+                chart.data.labels = strongestPointsData.labels;
+                chart.data.datasets[0].data = strongestPointsData.data;
+                chart.update();
+            }
+            // O gráfico de Evolução Mensal não é afetado pelo filtro de mês individual
+        }
+
+
+        // =============================================
+        // EVENT LISTENERS
+        // =============================================
+        
+        // Login
+        loginBtn.addEventListener('click', handleLogin);
+        loginPass.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') handleLogin();
+        });
+        
+        // Menu principal
+        document.getElementById('relatorioExamesMedicos').addEventListener('click', () => {
+            mainMenuScreen.style.display = 'none';
+            menuScreen.style.display = 'flex';
+            initMenu();
+        });
+        
+        document.getElementById('relatorioColaboradores').addEventListener('click', () => {
+            mainMenuScreen.style.display = 'none';
+            colaboradoresScreen.style.display = 'flex';
+            initColaboradores();
+        });
+        
+        document.getElementById('relatorioGeral').addEventListener('click', () => {
+            showCustomMessage('Relatório Geral será implementado em uma versão futura.');
+        });
+        
+        // Navegação
+        backBtn.addEventListener('click', backToMenu);
+        backFromPanoramaBtn.addEventListener('click', backFromPanorama);
+        // Os botões abaixo foram corrigidos para não sobrescrever o panorama
+        panoramaEspecialidadesBtn.addEventListener('click', openPanoramaGeral);
+        panoramaColaboradoresBtn.addEventListener('click', openPanoramaGeral);
+        
+        // Botões de ação
+        addQuadroBtn.addEventListener('click', () => {
+            verifyAction('edit', () => criarNovoQuadro());
+        });
+        
+        addEspecialidadeBtn.addEventListener('click', () => {
+            verifyAction('edit', () => openEditEspecialidadeModal());
+        });
+        
+        addColaboradorBtn.addEventListener('click', () => {
+            verifyAction('edit', () => openEditColaboradorModal());
+        });
+
+        // Removido os event listeners duplicados para panoramaEspecialidadesBtn e panoramaColaboradoresBtn
+        // Eles já estão definidos acima e chamam openPanoramaGeral corretamente.
+        
+        // Filtros
+        filterMaiorPontuacao.addEventListener('click', () => {
+            currentFilter = 'maior';
+            filterMaiorPontuacao.classList.add('active');
+            filterMenorPontuacao.classList.remove('active');
+            filterPadrao.classList.remove('active');
+            loadQuadros();
+        });
+        
+        filterMenorPontuacao.addEventListener('click', () => {
+            currentFilter = 'menor';
+            filterMenorPontuacao.classList.add('active');
+            filterMaiorPontuacao.classList.remove('active');
+            filterPadrao.classList.remove('active');
+            loadQuadros();
+        });
+        
+        filterPadrao.addEventListener('click', () => {
+            currentFilter = 'padrao';
+            filterPadrao.classList.add('active');
+            filterMaiorPontuacao.classList.remove('active');
+            filterMenorPontuacao.classList.remove('active');
+            loadQuadros();
+        });
+        
+        filterMonth.addEventListener('change', () => {
+            currentMonthFilter = parseInt(filterMonth.value);
+            loadQuadros();
+        });
+        
+        filterYear.addEventListener('change', () => {
+            currentYearFilter = parseInt(filterYear.value);
+            loadQuadros();
+        });
+        
+        // Modais
+        closeModal.addEventListener('click', closeEditEspecialidadeModal);
+        cancelModal.addEventListener('click', closeEditEspecialidadeModal);
+        saveEspecialidade.addEventListener('click', saveEspecialidadeData);
+        
+        closeColaboradorModal.addEventListener('click', closeEditColaboradorModal);
+        cancelColaboradorModal.addEventListener('click', closeColaboradorModal);
+        saveColaborador.addEventListener('click', saveColaboradorData);
+        
+        closeAnexoModal.addEventListener('click', () => anexoModal.style.display = 'none');
+        cancelAnexoModal.addEventListener('click', () => anexoModal.style.display = 'none');
+        saveAnexo.addEventListener('click', saveAnexoFile);
+        
+        closeFotoModal.addEventListener('click', () => fotoModal.style.display = 'none');
+        cancelFotoModal.addEventListener('click', () => fotoModal.style.display = 'none');
+        saveFoto.addEventListener('click', saveFotoFile);
+        
+        closeDataModal.addEventListener('click', () => dataModal.style.display = 'none');
+        cancelDataModal.addEventListener('click', () => dataModal.style.display = 'none');
+        saveDataBtn.addEventListener('click', saveDataPeriod);
+        
+        generatePdfBtn.addEventListener('click', generatePDF);
+        
+        // Foto preview
+        fotoArquivo.addEventListener('change', function(e) {
+            const file = e.target.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = function(event) {
+                    fotoPreview.innerHTML = `<img src="${event.target.result}" class="foto-preview" alt="Preview">`;
+                };
+                reader.readAsDataURL(file);
+            }
+        });
+        
+        // Fecha modais ao clicar fora
+        window.addEventListener('click', (e) => {
+            if (e.target === especialidadeModal) closeEditEspecialidadeModal();
+            if (e.target === colaboradorModal) closeEditColaboradorModal();
+            if (e.target === anexoModal) anexoModal.style.display = 'none';
+            if (e.target === fotoModal) fotoModal.style.display = 'none';
+            if (e.target === dataModal) dataModal.style.display = 'none';
+            // A linha abaixo foi corrigida para não interferir com o modal de mensagem customizado
+            // if (e.target === panoramaScreen || e.target === document.getElementById('simpleBackBtn')) backFromPanorama();
+        });
+        
+        // Inicialização
+        window.addEventListener('DOMContentLoaded', () => {
+            mainMenuScreen.style.display = 'none';
+            menuScreen.style.display = 'none';
+            dashboardScreen.style.display = 'none';
+            colaboradoresScreen.style.display = 'none';
+            panoramaScreen.style.display = 'none';
+            loginScreen.style.display = 'flex';
+            loginUser.focus();
+            
+            // Bloqueia F5 e clique direito para visualizadores
+            document.addEventListener('keydown', (e) => {
+                if (e.key === 'F5' && !isEditMode) {
+                    e.preventDefault();
+                    showCustomMessage('Use os botões do sistema para navegar');
+                }
+            });
+            
+            document.addEventListener('contextmenu', (e) => {
+                if (!isEditMode) e.preventDefault();
+            });
+        });
+    </script>
+</body>
+</html>
